@@ -1,0 +1,20 @@
+# HELMET Recall Tasks Configuration
+# Tasks: JSON KV, NIAH variants (multikey, multivalue)
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: helmet_recall
+task_dir: evaluation
+template: alpaca
+save_dir: saves/helmet_recall_evaluation
+batch_size: 1
+
+# HELMET specific configuration
+helmet_tasks: "json_kv,ruler_niah_mk_2,ruler_niah_mk_3,ruler_niah_mv"
+helmet_test_files: ""  # Will be auto-detected based on tasks
+helmet_demo_files: ""  # Will be auto-detected based on tasks
+helmet_input_max_length: 131072
+helmet_generation_max_length: 100
+helmet_shots: 2
+helmet_max_test_samples: 100
+helmet_output_dir: "saves/helmet_recall_evaluation"

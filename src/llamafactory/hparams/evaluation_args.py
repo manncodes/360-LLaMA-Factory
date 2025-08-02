@@ -81,6 +81,39 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "Directory path for custom haystack text files (when data_source='directory'). Default: evaluation/needle_haystack/data/PaulGrahamEssays"},
     )
+    # HELMET benchmark specific parameters
+    helmet_tasks: Optional[str] = field(
+        default=None,
+        metadata={"help": "Comma-separated list of HELMET tasks to evaluate. Options: 'recall', 'rag', 'rerank', 'cite', 'longqa', 'summ', 'icl'. Default: 'json_kv,ruler_niah_s_2'"},
+    )
+    helmet_test_files: Optional[str] = field(
+        default=None,
+        metadata={"help": "Comma-separated list of HELMET test files corresponding to tasks. Auto-detected if not specified."},
+    )
+    helmet_demo_files: Optional[str] = field(
+        default=None,
+        metadata={"help": "Comma-separated list of HELMET demo files corresponding to tasks. Auto-detected if not specified."},
+    )
+    helmet_input_max_length: Optional[int] = field(
+        default=131072,
+        metadata={"help": "Maximum input length in tokens for HELMET evaluation. Default: 131072"},
+    )
+    helmet_generation_max_length: Optional[int] = field(
+        default=100,
+        metadata={"help": "Maximum generation length in tokens for HELMET evaluation. Default: 100"},
+    )
+    helmet_shots: Optional[int] = field(
+        default=2,
+        metadata={"help": "Number of in-context learning shots for HELMET evaluation. Default: 2"},
+    )
+    helmet_max_test_samples: Optional[int] = field(
+        default=None,
+        metadata={"help": "Maximum number of test samples per HELMET task. None means use all samples."},
+    )
+    helmet_output_dir: Optional[str] = field(
+        default=None,
+        metadata={"help": "Output directory for HELMET results. Default: {save_dir}/helmet_results"},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):

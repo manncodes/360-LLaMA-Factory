@@ -1,0 +1,20 @@
+# HELMET Quick Demo Configuration
+# Fast evaluation with minimal samples for testing
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: helmet_demo
+task_dir: evaluation
+template: alpaca
+save_dir: saves/helmet_quick_demo
+batch_size: 1
+
+# HELMET specific configuration - Quick demo
+helmet_tasks: "json_kv"
+helmet_test_files: ""  # Will be auto-detected
+helmet_demo_files: ""  # Will be auto-detected
+helmet_input_max_length: 8192  # Shorter for quick demo
+helmet_generation_max_length: 50
+helmet_shots: 1  # Fewer shots for speed
+helmet_max_test_samples: 10  # Very small for quick testing
+helmet_output_dir: "saves/helmet_quick_demo"
