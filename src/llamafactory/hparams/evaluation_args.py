@@ -81,6 +81,39 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "Directory path for custom haystack text files (when data_source='directory'). Default: evaluation/needle_haystack/data/PaulGrahamEssays"},
     )
+    # LongBench v2 specific parameters
+    longbench_mode: Optional[str] = field(
+        default="standard",
+        metadata={"help": "LongBench evaluation mode. Options: 'standard', 'cot', 'no_context', 'rag'. Default: 'standard'"},
+    )
+    longbench_max_length: Optional[int] = field(
+        default=131072,
+        metadata={"help": "Maximum context length in tokens for LongBench evaluation. Default: 131072 (128k)"},
+    )
+    longbench_domains: Optional[str] = field(
+        default=None,
+        metadata={"help": "Comma-separated list of domains to evaluate. Default: all domains"},
+    )
+    longbench_max_samples: Optional[int] = field(
+        default=None,
+        metadata={"help": "Maximum number of samples to evaluate. Default: all samples (503)"},
+    )
+    longbench_rag_top_k: Optional[int] = field(
+        default=0,
+        metadata={"help": "Number of retrieved chunks for RAG mode. Default: 0 (disabled)"},
+    )
+    longbench_temperature: Optional[float] = field(
+        default=0.1,
+        metadata={"help": "Temperature for LongBench generation. Default: 0.1"},
+    )
+    longbench_max_new_tokens: Optional[int] = field(
+        default=128,
+        metadata={"help": "Maximum new tokens for standard generation. Default: 128"},
+    )
+    longbench_cot_max_new_tokens: Optional[int] = field(
+        default=1024,
+        metadata={"help": "Maximum new tokens for Chain-of-Thought generation. Default: 1024"},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):

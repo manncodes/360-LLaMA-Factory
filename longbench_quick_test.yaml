@@ -1,0 +1,19 @@
+# LongBench v2 Quick Test Configuration
+# This config runs a small subset for quick testing
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: longbench_quick
+save_dir: saves/longbench_quick_test
+template: alpaca
+batch_size: 1
+
+# LongBench specific settings
+longbench_mode: standard  # standard, cot, no_context, rag
+longbench_max_length: 8192  # Reduced for quick test
+longbench_max_samples: 10  # Only test 10 samples
+longbench_temperature: 0.1
+longbench_max_new_tokens: 128
+
+# Optional: filter by domains
+# longbench_domains: "Single-Doc QA,Multi-Doc QA"

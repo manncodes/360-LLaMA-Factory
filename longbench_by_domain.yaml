@@ -1,0 +1,21 @@
+# LongBench v2 Domain-Specific Evaluation Configuration
+# Evaluate specific domains only
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: longbench_domain
+save_dir: saves/longbench_domain_eval
+template: alpaca
+batch_size: 1
+
+# LongBench specific settings
+longbench_mode: standard
+longbench_max_length: 65536  # 64k tokens
+longbench_temperature: 0.1
+longbench_max_new_tokens: 128
+
+# Evaluate specific domains only
+longbench_domains: "Single-Doc QA,Code Repo Understanding"
+
+# Optional: limit samples per domain
+longbench_max_samples: 30

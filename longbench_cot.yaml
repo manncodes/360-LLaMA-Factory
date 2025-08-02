@@ -1,0 +1,19 @@
+# LongBench v2 Chain-of-Thought Evaluation Configuration
+# CoT mode for enhanced reasoning
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: longbench_cot
+save_dir: saves/longbench_cot_eval
+template: alpaca
+batch_size: 1
+
+# LongBench specific settings
+longbench_mode: cot  # Chain-of-Thought mode
+longbench_max_length: 131072  # 128k tokens
+longbench_temperature: 0.1
+longbench_max_new_tokens: 128
+longbench_cot_max_new_tokens: 1024  # More tokens for reasoning
+
+# Test on subset for CoT (slower)
+longbench_max_samples: 50

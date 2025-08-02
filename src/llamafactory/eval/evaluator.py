@@ -159,12 +159,16 @@ def run_eval() -> None:
     from ..hparams import get_eval_args
     
     # Get eval args to check task type
-    _, _, eval_args, _ = get_eval_args()
+    model_args, data_args, eval_args, finetuning_args = get_eval_args()
     
     # Check if this is a needle haystack task
     if eval_args.task.startswith("needle_haystack"):
         from .needle_haystack_evaluator import run_needle_haystack_eval
         run_needle_haystack_eval()
+    # Check if this is a LongBench task
+    elif eval_args.task.startswith("longbench"):
+        from .longbench_evaluator import run_longbench_evaluation
+        run_longbench_evaluation(model_args, data_args, eval_args, finetuning_args)
     else:
         # Use standard evaluator for other tasks
         Evaluator().eval()
