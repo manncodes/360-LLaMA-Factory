@@ -1,0 +1,11 @@
+# Simple LongBench v2 test configuration
+
+model_name_or_path: meta-llama/Llama-2-7b-hf
+finetuning_type: full
+task: longbench
+save_dir: saves/longbench_test
+template: llama2
+
+# LongBench specific settings
+longbench_max_length: 8192    # Conservative context length
+longbench_max_samples: 5      # Only 5 samples for testing

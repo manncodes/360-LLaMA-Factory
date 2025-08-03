@@ -56,6 +56,14 @@ class EvaluationArguments:
         default=DownloadMode.REUSE_DATASET_IF_EXISTS,
         metadata={"help": "Download mode used for the evaluation datasets."},
     )
+    longbench_max_length: Optional[int] = field(
+        default=32768,
+        metadata={"help": "Maximum context length for LongBench evaluation."},
+    )
+    longbench_max_samples: Optional[int] = field(
+        default=None,
+        metadata={"help": "Maximum number of samples to evaluate (None = all)."},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):
