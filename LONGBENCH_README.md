@@ -4,8 +4,21 @@ Minimal integration of LongBench v2 evaluation into LlamaFactory.
 
 ## Quick Start
 
+### Option 1: Use Local Dataset (Recommended)
 ```bash
-# Run LongBench evaluation
+# Setup symlink to your existing dataset
+./setup_longbench.sh
+
+# Or specify custom path
+./setup_longbench.sh /your/custom/path/to/LongBench-v2
+
+# Run evaluation with local dataset
+llamafactory-cli eval longbench_local.yaml
+```
+
+### Option 2: Download from HuggingFace
+```bash
+# Run LongBench evaluation (requires internet)
 llamafactory-cli eval longbench_test.yaml
 ```
 
@@ -20,6 +33,20 @@ save_dir: saves/longbench
 # LongBench settings
 longbench_max_length: 32768   # Max context length
 longbench_max_samples: 10     # Number of samples to evaluate
+longbench_use_local: true     # Use local dataset (requires setup)
+```
+
+## Setup Script Usage
+
+```bash
+# Use default path (/exp/data/eval_data/LongBench-v2)
+./setup_longbench.sh
+
+# Use custom path
+./setup_longbench.sh /path/to/your/LongBench-v2
+
+# Show help
+./setup_longbench.sh --help
 ```
 
 ## Features

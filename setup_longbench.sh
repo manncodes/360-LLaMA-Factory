@@ -12,10 +12,13 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Paths
-EXISTING_DATASET="/exp/data/eval_data/LongBench-v2"
+# Default paths
+DEFAULT_DATASET_PATH="/exp/data/eval_data/LongBench-v2"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 TARGET_DIR="$SCRIPT_DIR/data/longbench"
+
+# Parse command line arguments
+DATASET_PATH="${1:-$DEFAULT_DATASET_PATH}"
 SYMLINK_PATH="$TARGET_DIR/LongBench-v2"
 
 echo -e "${BLUE}======================================${NC}"
@@ -23,14 +26,32 @@ echo -e "${BLUE}LongBench v2 Dataset Setup${NC}"
 echo -e "${BLUE}======================================${NC}"
 echo
 
-# Check if existing dataset exists
-if [ ! -d "$EXISTING_DATASET" ]; then
-    echo -e "${RED}✗ LongBench v2 dataset not found at: $EXISTING_DATASET${NC}"
+# Show usage if help requested
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo "Usage: $0 [DATASET_PATH]"
+    echo
+    echo "Arguments:"
+    echo "  DATASET_PATH    Path to LongBench v2 dataset (default: $DEFAULT_DATASET_PATH)"
+    echo
+    echo "Examples:"
+    echo "  $0                                    # Use default path"
+    echo "  $0 /custom/path/to/LongBench-v2      # Use custom path"
+    echo "  $0 ~/data/LongBench-v2               # Use home directory path"
+    exit 0
+fi
+
+echo "Using dataset path: $DATASET_PATH"
+echo
+
+# Check if dataset exists
+if [ ! -d "$DATASET_PATH" ]; then
+    echo -e "${RED}✗ LongBench v2 dataset not found at: $DATASET_PATH${NC}"
     echo -e "${YELLOW}  Please ensure the dataset is available at this location${NC}"
+    echo -e "${YELLOW}  Or specify a different path: $0 /path/to/LongBench-v2${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✓ Found LongBench v2 dataset at: $EXISTING_DATASET${NC}"
+echo -e "${GREEN}✓ Found LongBench v2 dataset at: $DATASET_PATH${NC}"
 
 # Create target directory
 mkdir -p "$TARGET_DIR"
@@ -47,10 +68,10 @@ fi
 
 # Create symlink
 echo -e "${BLUE}Creating symlink...${NC}"
-ln -s "$EXISTING_DATASET" "$SYMLINK_PATH"
+ln -s "$DATASET_PATH" "$SYMLINK_PATH"
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Created symlink: $SYMLINK_PATH -> $EXISTING_DATASET${NC}"
+    echo -e "${GREEN}✓ Created symlink: $SYMLINK_PATH -> $DATASET_PATH${NC}"
 else
     echo -e "${RED}✗ Failed to create symlink${NC}"
     exit 1
@@ -98,7 +119,7 @@ echo -e "${GREEN}Setup Complete!${NC}"
 echo -e "${GREEN}======================================${NC}"
 echo
 echo -e "${BLUE}Dataset Location:${NC}"
-echo -e "  Original: $EXISTING_DATASET"
+echo -e "  Original: $DATASET_PATH"
 echo -e "  Symlink:  $SYMLINK_PATH"
 echo
 echo -e "${BLUE}Usage:${NC}"
