@@ -1,0 +1,28 @@
+# LongBench v2 Conservative Configuration
+# Designed to handle very long contexts by being very aggressive with truncation
+
+model_name_or_path: meta-llama/Llama-2-7b-hf
+finetuning_type: full
+task: longbench_conservative
+save_dir: saves/longbench_conservative
+template: llama2
+batch_size: 1
+
+# Very conservative settings for long contexts
+longbench_mode: standard
+longbench_max_length: 8192    # Much smaller context window
+longbench_max_samples: 3      # Only 3 samples
+longbench_temperature: 0.0    # Deterministic
+longbench_max_new_tokens: 20  # Very short responses
+
+# Force using local dataset
+longbench_force_local: true
+
+# This configuration is designed to:
+# 1. Handle very long LongBench contexts by aggressive truncation
+# 2. Use much smaller context window (8k instead of 128k)
+# 3. Minimize generation tokens to avoid context overflow
+# 4. Test that the symlinked dataset loading works correctly
+#
+# The evaluator will truncate contexts to fit within the 8k limit
+# while preserving the question and answer choices.

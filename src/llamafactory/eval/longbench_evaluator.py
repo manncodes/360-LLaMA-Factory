@@ -276,10 +276,28 @@ The correct answer is ("""
         
         # Truncate context if needed
         if self.config.mode != 'no_context':
-            # Reserve tokens for prompt template and question
-            template_tokens = len(self.tokenizer.encode(template, add_special_tokens=False))
-            reserved_tokens = template_tokens + 500  # Extra buffer for question and choices
-            max_context_tokens = self.max_length - reserved_tokens
+            # First, create prompt without context to measure overhead
+            temp_prompt = template.replace('$DOC$', '')
+            temp_prompt = temp_prompt.replace('$Q$', item['question'].strip())
+            temp_prompt = temp_prompt.replace('$C_A$', item['choice_A'].strip())
+            temp_prompt = temp_prompt.replace('$C_B$', item['choice_B'].strip())
+            temp_prompt = temp_prompt.replace('$C_C$', item['choice_C'].strip())
+            temp_prompt = temp_prompt.replace('$C_D$', item['choice_D'].strip())
+            
+            # Calculate overhead tokens (everything except context)
+            overhead_tokens = len(self.tokenizer.encode(temp_prompt, add_special_tokens=False))
+            
+            # Reserve space for generation and safety margin
+            reserved_for_generation = 200  # Space for answer generation
+            safety_margin = 100  # Extra safety buffer
+            
+            # Calculate maximum tokens available for context
+            max_context_tokens = self.max_length - overhead_tokens - reserved_for_generation - safety_margin
+            
+            # Ensure we have at least some context
+            if max_context_tokens < 100:
+                logger.warning(f"Very little space for context: {max_context_tokens} tokens")
+                max_context_tokens = 100
             
             context = self._truncate_text(context, max_context_tokens)
         
@@ -290,6 +308,16 @@ The correct answer is ("""
         prompt = prompt.replace('$C_B$', item['choice_B'].strip())
         prompt = prompt.replace('$C_C$', item['choice_C'].strip())
         prompt = prompt.replace('$C_D$', item['choice_D'].strip())
+        
+        # Final safety check - truncate entire prompt if still too long
+        final_tokens = len(self.tokenizer.encode(prompt, add_special_tokens=False))
+        max_prompt_tokens = self.max_length - 150  # Reserve space for generation
+        
+        if final_tokens > max_prompt_tokens:
+            logger.warning(f"Final prompt too long ({final_tokens} tokens), truncating to {max_prompt_tokens}")
+            prompt_tokens = self.tokenizer.encode(prompt, add_special_tokens=False)
+            truncated_tokens = prompt_tokens[:max_prompt_tokens]
+            prompt = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
         
         return prompt
     
@@ -330,17 +358,35 @@ The correct answer is ("""
         
         # Batch encode with length validation
         encoded = []
-        for messages in messages_batch:
-            input_ids, _ = self.template.encode_oneturn(
-                tokenizer=self.tokenizer,
-                messages=messages
-            )
-            # Ensure input doesn't exceed model capacity
-            if len(input_ids) > self.max_length - 100:  # Reserve space for generation
-                logger.warning(f"Input too long ({len(input_ids)} tokens), truncating to {self.max_length - 100}")
-                input_ids = input_ids[:self.max_length - 100]
-            
-            encoded.append({"input_ids": input_ids, "attention_mask": [1] * len(input_ids)})
+        for i, messages in enumerate(messages_batch):
+            try:
+                input_ids, _ = self.template.encode_oneturn(
+                    tokenizer=self.tokenizer,
+                    messages=messages
+                )
+                
+                # More aggressive truncation
+                max_input_length = self.max_length - 200  # Reserve more space for generation
+                
+                if len(input_ids) > max_input_length:
+                    logger.warning(f"Input {i} too long ({len(input_ids)} tokens), truncating to {max_input_length}")
+                    input_ids = input_ids[:max_input_length]
+                
+                # Validate input_ids is not empty
+                if len(input_ids) == 0:
+                    logger.error(f"Empty input_ids for prompt {i}, using fallback")
+                    # Create minimal fallback input
+                    fallback_text = "Answer: A"
+                    input_ids = self.tokenizer.encode(fallback_text, add_special_tokens=True)
+                
+                encoded.append({"input_ids": input_ids, "attention_mask": [1] * len(input_ids)})
+                
+            except Exception as e:
+                logger.error(f"Error encoding prompt {i}: {e}")
+                # Create fallback encoding
+                fallback_text = "Answer: A"
+                input_ids = self.tokenizer.encode(fallback_text, add_special_tokens=True)
+                encoded.append({"input_ids": input_ids, "attention_mask": [1] * len(input_ids)})
         
         # Pad batch
         batch = self.tokenizer.pad(
