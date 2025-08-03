@@ -64,6 +64,10 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "Maximum number of samples to evaluate (None = all)."},
     )
+    longbench_use_local: Optional[bool] = field(
+        default=False,
+        metadata={"help": "Use local dataset instead of downloading from HuggingFace."},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):

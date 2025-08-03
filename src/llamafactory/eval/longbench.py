@@ -150,7 +150,19 @@ Answer (A/B/C/D):"""
         logger.info("Starting LongBench v2 evaluation...")
         
         # Load dataset
-        dataset = load_dataset('THUDM/LongBench-v2', split='train')
+        if getattr(self.eval_args, 'longbench_use_local', False):
+            # Try to load from local symlinked dataset
+            local_path = Path(__file__).parent.parent.parent.parent / "data" / "longbench" / "LongBench-v2"
+            if local_path.exists():
+                logger.info(f"Loading local dataset from: {local_path}")
+                dataset = load_dataset('json', data_files=str(local_path / "data.json"), split='train')
+            else:
+                logger.error(f"Local dataset not found at: {local_path}")
+                logger.info("Run ./setup_longbench.sh to create symlink")
+                raise FileNotFoundError(f"Local dataset not found. Run ./setup_longbench.sh first.")
+        else:
+            logger.info("Loading dataset from HuggingFace...")
+            dataset = load_dataset('THUDM/LongBench-v2', split='train')
         
         # Limit samples if specified
         max_samples = getattr(self.eval_args, 'longbench_max_samples', None)
