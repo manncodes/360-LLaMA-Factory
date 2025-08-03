@@ -1,0 +1,27 @@
+# LongBench v2 Debug Configuration
+# Minimal config to debug empty input_ids issue
+
+model_name_or_path: meta-llama/Llama-2-7b-hf
+finetuning_type: full
+task: longbench_debug
+save_dir: saves/longbench_debug
+template: llama2
+batch_size: 1
+
+# Very conservative settings
+longbench_mode: standard
+longbench_max_length: 4096     # Very small context window
+longbench_max_samples: 2       # Only 2 samples for quick debug
+longbench_temperature: 0.0     # Deterministic
+longbench_max_new_tokens: 10   # Minimal generation
+
+# Force local dataset
+longbench_force_local: true
+
+# Debug settings
+logging_level: DEBUG           # Enable debug logging
+
+# This config will help identify:
+# 1. Why input_ids are empty
+# 2. How the context is being truncated
+# 3. What the final prompts look like

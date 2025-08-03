@@ -250,12 +250,25 @@ The correct answer is ("""
         
         if len(tokens) <= max_tokens:
             return text
+        
+        # Ensure we have at least some minimum context
+        if max_tokens < 50:
+            logger.warning(f"Max tokens too small ({max_tokens}), using minimum of 50")
+            max_tokens = 50
             
-        # Middle truncation strategy
+        # Middle truncation strategy - keep beginning and end
         half_max = max_tokens // 2
         truncated_tokens = tokens[:half_max] + tokens[-half_max:]
         
-        return self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+        truncated_text = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+        
+        # Ensure we return non-empty text
+        if not truncated_text.strip():
+            logger.error(f"Truncation resulted in empty text, returning first {max_tokens} tokens")
+            truncated_tokens = tokens[:max_tokens]
+            truncated_text = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+        
+        return truncated_text
     
     def _prepare_prompt(self, item: Dict[str, Any]) -> str:
         """Prepare prompt based on evaluation mode."""
@@ -294,12 +307,24 @@ The correct answer is ("""
             # Calculate maximum tokens available for context
             max_context_tokens = self.max_length - overhead_tokens - reserved_for_generation - safety_margin
             
-            # Ensure we have at least some context
+            # Log the calculation for debugging
+            logger.info(f"Context calculation: max_length={self.max_length}, overhead={overhead_tokens}, "
+                       f"reserved={reserved_for_generation}, safety={safety_margin}, "
+                       f"available_for_context={max_context_tokens}")
+            
+            # Be more conservative with context
             if max_context_tokens < 100:
                 logger.warning(f"Very little space for context: {max_context_tokens} tokens")
                 max_context_tokens = 100
             
+            # Further reduce context to be extra safe
+            max_context_tokens = int(max_context_tokens * 0.8)  # Use only 80% of available space
+            
+            original_context_len = len(self.tokenizer.encode(context, add_special_tokens=False))
             context = self._truncate_text(context, max_context_tokens)
+            truncated_context_len = len(self.tokenizer.encode(context, add_special_tokens=False))
+            
+            logger.info(f"Context truncated from {original_context_len} to {truncated_context_len} tokens")
         
         # Fill template
         prompt = template.replace('$DOC$', context.strip())
@@ -318,6 +343,13 @@ The correct answer is ("""
             prompt_tokens = self.tokenizer.encode(prompt, add_special_tokens=False)
             truncated_tokens = prompt_tokens[:max_prompt_tokens]
             prompt = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+        
+        # Validate that prompt is not empty
+        if not prompt.strip():
+            logger.error("Generated empty prompt, creating minimal fallback")
+            prompt = f"Question: {item['question'][:100]}\nA) {item['choice_A']}\nB) {item['choice_B']}\nC) {item['choice_C']}\nD) {item['choice_D']}\nAnswer:"
+        
+        logger.debug(f"Final prompt length: {len(self.tokenizer.encode(prompt, add_special_tokens=False))} tokens")
         
         return prompt
     
@@ -360,10 +392,37 @@ The correct answer is ("""
         encoded = []
         for i, messages in enumerate(messages_batch):
             try:
-                input_ids, _ = self.template.encode_oneturn(
-                    tokenizer=self.tokenizer,
-                    messages=messages
-                )
+                # Debug the input message
+                logger.debug(f"Encoding message {i}: {messages[0]['content'][:100]}...")
+                
+                # Try template encoding first
+                try:
+                    input_ids, _ = self.template.encode_oneturn(
+                        tokenizer=self.tokenizer,
+                        messages=messages
+                    )
+                    
+                    # Check if template encoding returned empty
+                    if not input_ids or len(input_ids) == 0:
+                        logger.warning(f"Template encoding returned empty for prompt {i}")
+                        raise ValueError("Empty template encoding result")
+                        
+                except Exception as template_error:
+                    logger.warning(f"Template encoding failed for prompt {i}: {template_error}")
+                    # Fallback to direct tokenization
+                    content = messages[0]['content']
+                    
+                    # Ensure content is not empty
+                    if not content or not content.strip():
+                        logger.error(f"Empty content for prompt {i}")
+                        content = "Please answer: A, B, C, or D"
+                    
+                    input_ids = self.tokenizer.encode(content, add_special_tokens=True)
+                    
+                    # Double-check the fallback encoding
+                    if not input_ids or len(input_ids) == 0:
+                        logger.error(f"Even fallback encoding failed for prompt {i}")
+                        input_ids = self.tokenizer.encode("Answer: ", add_special_tokens=True)
                 
                 # More aggressive truncation
                 max_input_length = self.max_length - 200  # Reserve more space for generation
@@ -376,17 +435,25 @@ The correct answer is ("""
                 if len(input_ids) == 0:
                     logger.error(f"Empty input_ids for prompt {i}, using fallback")
                     # Create minimal fallback input
-                    fallback_text = "Answer: A"
+                    fallback_text = f"Question: Answer A, B, C, or D.\nAnswer:"
+                    input_ids = self.tokenizer.encode(fallback_text, add_special_tokens=True)
+                
+                # Ensure we have at least some tokens
+                if len(input_ids) < 3:
+                    logger.error(f"Too few tokens ({len(input_ids)}) for prompt {i}, using extended fallback")
+                    fallback_text = f"Please choose A, B, C, or D as your answer:"
                     input_ids = self.tokenizer.encode(fallback_text, add_special_tokens=True)
                 
                 encoded.append({"input_ids": input_ids, "attention_mask": [1] * len(input_ids)})
+                logger.debug(f"Successfully encoded prompt {i} with {len(input_ids)} tokens")
                 
             except Exception as e:
                 logger.error(f"Error encoding prompt {i}: {e}")
-                # Create fallback encoding
-                fallback_text = "Answer: A"
+                # Create robust fallback encoding
+                fallback_text = f"Answer one of: A, B, C, D. Your answer:"
                 input_ids = self.tokenizer.encode(fallback_text, add_special_tokens=True)
                 encoded.append({"input_ids": input_ids, "attention_mask": [1] * len(input_ids)})
+                logger.debug(f"Used fallback encoding for prompt {i}")
         
         # Pad batch
         batch = self.tokenizer.pad(
