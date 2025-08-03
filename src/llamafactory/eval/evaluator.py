@@ -49,10 +49,9 @@ from transformers.utils import cached_file
 
 from ..data import get_template_and_fix_tokenizer
 from ..extras.constants import CHOICES, SUBJECTS
-from ..hparams import get_eval_args, ModelArguments, DataArguments, EvaluationArguments, FinetuningArguments
+from ..hparams import get_eval_args
 from ..model import load_model, load_tokenizer
 from .template import get_eval_template
-from transformers import HfArgumentParser
 
 
 if TYPE_CHECKING:
@@ -156,12 +155,11 @@ class Evaluator:
 
 
 def run_eval() -> None:
-    parser = HfArgumentParser((ModelArguments, DataArguments, EvaluationArguments, FinetuningArguments))
-    model_args, data_args, eval_args, finetuning_args = parser.parse_args_into_dataclasses()
+    model_args, data_args, eval_args, finetuning_args = get_eval_args()
     
     # Check if this is a LongBench evaluation
     if eval_args.task and "longbench" in eval_args.task.lower():
         from .longbench import run_longbench_eval
         run_longbench_eval(model_args, data_args, eval_args, finetuning_args)
     else:
-        Evaluator().eval()
+        Evaluator(model_args, data_args, eval_args, finetuning_args).eval()
