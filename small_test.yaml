@@ -1,0 +1,11 @@
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: needle_haystack_proper
+task_dir: evaluation
+template: alpaca
+save_dir: saves/small_test
+batch_size: 1
+needle_context_lengths: [100, 200]
+needle_depth_percents: [0, 100]
+needle_text: "Test ABC"
+needle_question: "What is test?"

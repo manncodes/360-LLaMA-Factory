@@ -1,0 +1,16 @@
+# LongBench v2 Ultra-Minimal Test for TinyLlama
+# This is the smallest possible test to verify integration works
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: longbench_ultra_minimal
+save_dir: saves/longbench_ultra_minimal
+template: alpaca
+batch_size: 1
+
+# Ultra-minimal LongBench settings
+longbench_mode: standard
+longbench_max_length: 1024  # Very small - just 1k tokens
+longbench_max_samples: 1  # Only 1 sample
+longbench_temperature: 0.0  # Deterministic
+longbench_max_new_tokens: 20  # Very short responses

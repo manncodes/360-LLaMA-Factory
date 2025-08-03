@@ -1,0 +1,24 @@
+### model
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+### method
+finetuning_type: full
+
+### dataset
+task: needle_haystack_proper
+task_dir: evaluation
+template: alpaca
+lang: en
+
+### output
+save_dir: saves/test_cache_fix
+
+### eval
+batch_size: 1
+
+### needle haystack configuration - Test cache fix
+needle_context_lengths: [150, 250, 350, 450, 550, 650]  # 6 lengths
+needle_depth_percents: [0, 20, 40, 60, 80, 100]  # 6 positions
+needle_text: "The test code is CACHE123."
+needle_question: "What is the test code?"
+needle_haystack_data_source: "custom"

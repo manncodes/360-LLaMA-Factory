@@ -1,0 +1,16 @@
+# LongBench Demo for TinyLlama - Extremely Limited Test
+# Designed to actually complete without errors
+
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+finetuning_type: full
+task: longbench_demo
+save_dir: saves/longbench_demo_tiny
+template: alpaca
+batch_size: 1
+
+# Ultra-conservative settings to avoid context overflow
+longbench_mode: standard
+longbench_max_length: 512  # Very short - only 512 tokens total
+longbench_max_samples: 3   # Only 3 samples
+longbench_temperature: 0.0 # Deterministic
+longbench_max_new_tokens: 10  # Very short responses
