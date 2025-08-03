@@ -2,11 +2,23 @@
 
 This guide explains how to set up LongBench v2 for use with 360-LLaMA-Factory.
 
-## Quick Setup
+## Important Note
 
-### Option 1: Basic Setup (Recommended)
+**If you already have the LongBench v2 HuggingFace dataset downloaded** (e.g., at `/exp/data/eval_data/LongBench-v2`), you can use the simple link setup:
+
+### Quick Setup for Existing Dataset
 ```bash
-# Clone and create symlink with default settings
+# Create symlink to existing HuggingFace dataset
+./setup_longbench_link.sh
+```
+
+This is the **recommended approach** if you already have the dataset downloaded.
+
+## Alternative Setup Methods
+
+### Option 1: Basic Setup (GitHub Clone)
+```bash
+# Clone GitHub repo and create symlink with default settings
 ./setup_longbench.sh
 
 # Or specify custom path
@@ -54,16 +66,25 @@ Automatically configure environment variables:
 ./setup_longbench_advanced.sh --mode clone --env --config
 ```
 
+## Dataset vs Repository
+
+LongBench v2 has two components:
+1. **HuggingFace Dataset**: The actual evaluation data (503 questions) - this is what you need for evaluation
+2. **GitHub Repository**: Contains prompt templates and evaluation scripts
+
+If you already have the **HuggingFace dataset downloaded**, you only need the prompt templates from the GitHub repo.
+
 ## Configuration in YAML
 
-After setup, you have three options for using LongBench:
+After setup, you have multiple options for using LongBench:
 
-### 1. Automatic Detection (Default)
+### 1. HuggingFace Dataset (Recommended)
 ```yaml
-# No configuration needed - uses symlink/copy automatically
+# Uses HuggingFace dataset directly - no path configuration needed
 model_name_or_path: meta-llama/Llama-2-7b-hf
 task: longbench_test
-# System will find LongBench automatically
+longbench_max_samples: 10
+# The evaluator automatically loads: load_dataset('THUDM/LongBench-v2')
 ```
 
 ### 2. Environment Variable
