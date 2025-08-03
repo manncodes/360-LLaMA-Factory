@@ -14,3 +14,6 @@ longbench_max_length: 1536  # Ultra short for TinyLlama (2048 capacity - 512 res
 longbench_max_samples: 2  # Only 2 samples for quick test
 longbench_temperature: 0.0  # Deterministic
 longbench_max_new_tokens: 50  # Short responses
+
+# Optional: Custom LongBench repository path
+# longbench_repo_path: /path/to/your/LongBench

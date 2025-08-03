@@ -1,0 +1,30 @@
+# LongBench v2 Configuration with Custom Repository Path
+# Example showing how to use LongBench from a different location
+
+model_name_or_path: meta-llama/Llama-2-7b-hf
+finetuning_type: full
+task: longbench_custom
+save_dir: saves/longbench_custom_path
+template: llama2
+batch_size: 1
+
+# LongBench specific settings
+longbench_mode: standard
+longbench_max_length: 32768  # 32k tokens
+longbench_max_samples: 10  # Quick test
+longbench_temperature: 0.1
+longbench_max_new_tokens: 128
+
+# CUSTOM PATH CONFIGURATION
+# Point to your LongBench v2 repository location
+# This path should contain the 'prompts' directory with prompt templates
+longbench_repo_path: /exp/data/eval_data/LongBench
+
+# Alternative examples:
+# longbench_repo_path: /home/user/benchmarks/LongBench
+# longbench_repo_path: /mnt/shared/LongBench-v2
+# longbench_repo_path: ../external/LongBench
+
+# Note: If longbench_repo_path is not specified, the system will look for:
+# 1. evaluation/longbench/LongBench (default location)
+# 2. evaluation/longbench/prompts (fallback location)

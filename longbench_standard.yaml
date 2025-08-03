@@ -19,3 +19,7 @@ longbench_max_new_tokens: 128
 
 # Evaluate all domains
 # longbench_domains: null
+
+# Optional: Configure LongBench v2 repository path
+# If not specified, defaults to evaluation/longbench/LongBench
+# longbench_repo_path: /path/to/your/LongBench

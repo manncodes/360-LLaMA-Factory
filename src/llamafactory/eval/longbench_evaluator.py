@@ -108,7 +108,18 @@ class LongBenchEvaluator:
     def _load_prompts(self) -> Dict[str, str]:
         """Load LongBench prompt templates."""
         prompts = {}
-        prompt_dir = Path(__file__).parent.parent.parent.parent / "evaluation" / "longbench" / "prompts"
+        
+        # Use configurable repo path if provided
+        if hasattr(self.eval_args, 'longbench_repo_path') and self.eval_args.longbench_repo_path:
+            longbench_path = Path(self.eval_args.longbench_repo_path)
+        else:
+            # Default path
+            longbench_path = Path(__file__).parent.parent.parent.parent / "evaluation" / "longbench" / "LongBench"
+        
+        prompt_dir = longbench_path / "prompts"
+        
+        # Also check in our local prompts directory as fallback
+        local_prompt_dir = Path(__file__).parent.parent.parent.parent / "evaluation" / "longbench" / "prompts"
         
         prompt_files = {
             'standard': '0shot.txt',
@@ -119,12 +130,19 @@ class LongBenchEvaluator:
         }
         
         for key, filename in prompt_files.items():
+            # Try the configured repo path first
             prompt_path = prompt_dir / filename
             if prompt_path.exists():
                 with open(prompt_path, 'r', encoding='utf-8') as f:
                     prompts[key] = f.read()
             else:
-                logger.warning(f"Prompt file not found: {prompt_path}")
+                # Try local fallback
+                local_path = local_prompt_dir / filename
+                if local_path.exists():
+                    with open(local_path, 'r', encoding='utf-8') as f:
+                        prompts[key] = f.read()
+                else:
+                    logger.warning(f"Prompt file not found in {prompt_path} or {local_path}")
                 
         # Fallback prompts if files not found
         if 'standard' not in prompts:

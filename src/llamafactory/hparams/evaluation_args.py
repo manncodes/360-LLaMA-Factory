@@ -114,6 +114,10 @@ class EvaluationArguments:
         default=1024,
         metadata={"help": "Maximum new tokens for Chain-of-Thought generation. Default: 1024"},
     )
+    longbench_repo_path: Optional[str] = field(
+        default=None,
+        metadata={"help": "Path to LongBench v2 repository. If not specified, uses evaluation/longbench/LongBench"},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):
