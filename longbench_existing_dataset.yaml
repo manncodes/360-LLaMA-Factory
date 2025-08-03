@@ -1,0 +1,26 @@
+# LongBench v2 Configuration for Existing HuggingFace Dataset
+# Uses the dataset already downloaded at /exp/data/eval_data/LongBench-v2
+
+model_name_or_path: meta-llama/Llama-2-7b-hf
+finetuning_type: full
+task: longbench_existing_dataset
+save_dir: saves/longbench_existing_dataset
+template: llama2
+batch_size: 1
+
+# LongBench evaluation settings
+longbench_mode: standard
+longbench_max_length: 32768  # 32k tokens for reasonable performance
+longbench_max_samples: 20    # Quick evaluation with 20 samples
+longbench_temperature: 0.1
+longbench_max_new_tokens: 128
+
+# Optional: Test specific domains
+# longbench_domains: "Single-Document QA,Multi-Document QA"
+
+# Note: The dataset is automatically loaded from HuggingFace
+# No need to specify longbench_repo_path - the evaluator uses:
+# load_dataset('THUDM/LongBench-v2', split='train')
+# 
+# Your existing dataset at /exp/data/eval_data/LongBench-v2 will be used
+# if it's properly cached by HuggingFace datasets library
