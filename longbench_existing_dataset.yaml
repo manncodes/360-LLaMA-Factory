@@ -18,9 +18,12 @@ longbench_max_new_tokens: 128
 # Optional: Test specific domains
 # longbench_domains: "Single-Document QA,Multi-Document QA"
 
-# Note: The dataset is automatically loaded from HuggingFace
-# No need to specify longbench_repo_path - the evaluator uses:
-# load_dataset('THUDM/LongBench-v2', split='train')
-# 
-# Your existing dataset at /exp/data/eval_data/LongBench-v2 will be used
-# if it's properly cached by HuggingFace datasets library
+# Force using local dataset (prioritizes symlink in evaluation/longbench/LongBench-v2)
+longbench_force_local: true
+
+# Note: With longbench_force_local: true, the evaluator will:
+# 1. First look for: evaluation/longbench/LongBench-v2 (symlink to your dataset)
+# 2. Then check: longbench_repo_path if specified
+# 3. Only use HuggingFace hub if longbench_force_local: false
+#
+# Run ./setup_longbench_link.sh to create the symlink to your existing dataset

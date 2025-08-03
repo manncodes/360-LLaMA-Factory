@@ -118,6 +118,10 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "Path to LongBench v2 repository. If not specified, uses evaluation/longbench/LongBench"},
     )
+    longbench_force_local: Optional[bool] = field(
+        default=True,
+        metadata={"help": "Force using local dataset (symlink/copy) instead of HuggingFace hub. Default: True"},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):

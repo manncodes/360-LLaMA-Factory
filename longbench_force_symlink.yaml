@@ -1,0 +1,30 @@
+# LongBench v2 Configuration - Force Symlink Usage
+# This configuration forces the use of symlinked dataset at evaluation/longbench/LongBench-v2
+
+model_name_or_path: meta-llama/Llama-2-7b-hf
+finetuning_type: full
+task: longbench_force_symlink
+save_dir: saves/longbench_force_symlink
+template: llama2
+batch_size: 1
+
+# LongBench evaluation settings
+longbench_mode: standard
+longbench_max_length: 16384  # 16k tokens for faster evaluation
+longbench_max_samples: 5     # Very small test
+longbench_temperature: 0.0   # Deterministic
+longbench_max_new_tokens: 50
+
+# FORCE LOCAL DATASET USAGE
+longbench_force_local: true
+
+# This configuration will:
+# 1. Look for symlink at: evaluation/longbench/LongBench-v2
+# 2. Fail if symlink doesn't exist (no HuggingFace fallback)
+# 3. Ensure your local dataset at /exp/data/eval_data/LongBench-v2 is used
+#
+# Setup required:
+# ./setup_longbench_link.sh
+#
+# This guarantees that your specific dataset version is used,
+# not any cached HuggingFace version that might be different.

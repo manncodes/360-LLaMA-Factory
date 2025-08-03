@@ -163,6 +163,87 @@ The correct answer is ("""
         
         return prompts
     
+    def _load_longbench_dataset(self):
+        """Load LongBench v2 dataset with priority for local symlink."""
+        # Priority order for finding the dataset:
+        # 1. Symlinked dataset in evaluation/longbench/LongBench-v2
+        # 2. Configured repo path
+        # 3. HuggingFace datasets API
+        
+        dataset_paths = []
+        
+        # Check for symlinked dataset first
+        symlink_path = Path(__file__).parent.parent.parent.parent / "evaluation" / "longbench" / "LongBench-v2"
+        if symlink_path.exists():
+            dataset_paths.append(symlink_path)
+            logger.info(f"Found symlinked dataset at: {symlink_path}")
+        
+        # Check configured repo path
+        if hasattr(self.eval_args, 'longbench_repo_path') and self.eval_args.longbench_repo_path:
+            configured_path = Path(self.eval_args.longbench_repo_path)
+            if configured_path.exists():
+                dataset_paths.append(configured_path)
+                logger.info(f"Found configured dataset at: {configured_path}")
+        
+        # Try to load from local paths first
+        for dataset_path in dataset_paths:
+            try:
+                logger.info(f"Attempting to load dataset from: {dataset_path}")
+                
+                # Check if it's a HuggingFace dataset directory structure
+                if (dataset_path / "data").exists() or any(dataset_path.glob("*.arrow")) or any(dataset_path.glob("*.parquet")):
+                    # Load as HuggingFace dataset from local path
+                    from datasets import load_from_disk, Dataset
+                    
+                    # Try different loading methods
+                    try:
+                        dataset = load_from_disk(str(dataset_path))
+                        if hasattr(dataset, 'train'):
+                            dataset = dataset['train']
+                        logger.info(f"✓ Successfully loaded dataset from disk: {dataset_path}")
+                        return dataset
+                    except:
+                        # Try loading as dataset from path
+                        dataset = load_dataset(str(dataset_path), split='train')
+                        logger.info(f"✓ Successfully loaded dataset from path: {dataset_path}")
+                        return dataset
+                
+                # Check for specific LongBench-v2 structure
+                elif any(dataset_path.glob("*.jsonl")) or any(dataset_path.glob("*.json")):
+                    # Try to load JSON/JSONL files
+                    json_files = list(dataset_path.glob("*.jsonl")) + list(dataset_path.glob("*.json"))
+                    if json_files:
+                        logger.info(f"Found data files: {[f.name for f in json_files]}")
+                        dataset = load_dataset('json', data_files=str(json_files[0]), split='train')
+                        logger.info(f"✓ Successfully loaded dataset from JSON: {dataset_path}")
+                        return dataset
+                        
+            except Exception as e:
+                logger.warning(f"Failed to load dataset from {dataset_path}: {e}")
+                continue
+        
+        # Check if we should force local loading
+        force_local = getattr(self.eval_args, 'longbench_force_local', True)
+        
+        if force_local and dataset_paths:
+            # If force_local is True and we found local paths, don't fallback to HF hub
+            raise RuntimeError(f"Could not load LongBench v2 dataset from local paths: {dataset_paths}. "
+                             f"Set longbench_force_local: false to use HuggingFace hub as fallback.")
+        
+        # Fallback to HuggingFace hub only if force_local is False or no local paths found
+        if not force_local:
+            logger.info("Loading from HuggingFace hub as fallback...")
+            try:
+                dataset = load_dataset('THUDM/LongBench-v2', split='train')
+                logger.info("✓ Successfully loaded dataset from HuggingFace hub")
+                return dataset
+            except Exception as e:
+                logger.error(f"Failed to load dataset from HuggingFace hub: {e}")
+                raise RuntimeError("Could not load LongBench v2 dataset from any source")
+        else:
+            raise RuntimeError("No local LongBench v2 dataset found and longbench_force_local is True. "
+                             "Please run the setup script or set longbench_force_local: false")
+    
     def _truncate_text(self, text: str, max_tokens: int) -> str:
         """Truncate text to fit within max tokens using middle truncation."""
         tokens = self.tokenizer.encode(text, add_special_tokens=False)
@@ -358,7 +439,7 @@ The correct answer is ("""
         
         # Load dataset
         logger.info("Loading LongBench v2 dataset...")
-        dataset = load_dataset('THUDM/LongBench-v2', split='train')
+        dataset = self._load_longbench_dataset()
         
         # Filter by specific domains if requested
         if hasattr(self.eval_args, 'longbench_domains') and self.eval_args.longbench_domains:
