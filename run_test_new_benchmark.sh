@@ -15,7 +15,7 @@ if [ ! -f "scripts/methods/benchmark_runner.py" ]; then
 fi
 
 # Install required packages if needed
-python3 -c "import tqdm, yaml" 2>/dev/null || pip install tqdm PyYAML
+python3 -c "import yaml" 2>/dev/null || pip install PyYAML
 
 echo "Starting test benchmark with new Python runner..."
 echo "Model: $MODEL"

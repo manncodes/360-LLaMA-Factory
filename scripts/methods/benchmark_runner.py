@@ -9,7 +9,6 @@ import subprocess
 import yaml
 from pathlib import Path
 from datetime import datetime
-from tqdm import tqdm
 from typing import Dict, List, Optional
 
 class MethodBenchmarkRunner:
@@ -113,30 +112,27 @@ class MethodBenchmarkRunner:
         return config_file
     
     def run_evaluation(self, method: str, config_file: Path, timeout: int = 1800) -> Dict:
-        """Run evaluation for a single method with proper progress tracking"""
+        """Run evaluation for a single method"""
         print(f"\nRunning {method.upper()} evaluation...")
         
         start_time = time.time()
         result_dir = Path(f"saves/methodwise/{method}")
         
-        # Run with tqdm progress bar simulation
+        # Run evaluation (tqdm progress is handled inside the evaluation script)
         cmd = ["python3", "run_needle_eval.py", str(config_file)]
         log_file = self.results_dir / f"{method}.log"
         
         with open(log_file, 'w') as f:
-            process = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             
-            # Progress bar simulation
-            with tqdm(total=100, desc=f"{method.upper()}", unit="step") as pbar:
-                while process.poll() is None:
-                    time.sleep(2)
-                    pbar.update(1)
-                    if pbar.n >= 100:
-                        pbar.reset()
-                
-                if process.poll() == 0:
-                    pbar.update(100 - pbar.n)
+            # Stream output in real-time
+            for line in process.stdout:
+                f.write(line)
+                # Show tqdm progress lines
+                if "Processing examples" in line or "%" in line:
+                    print(line.strip())
         
+        process.wait()
         duration = int(time.time() - start_time)
         
         # Check results
