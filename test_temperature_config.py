@@ -26,7 +26,8 @@ def test_temperature_configs():
         with open(config_file) as f:
             config = yaml.safe_load(f)
         
-        print(f"✓ Temperature: {config['temperature']}")
+        temp_value = config.get('temperature', 'NOT_SET')
+        print(f"✓ Temperature: {temp_value}")
         print(f"✓ Do sample: {config['do_sample']}")
         
         expected_do_sample = temp > 0.0

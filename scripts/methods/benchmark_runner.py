@@ -35,26 +35,20 @@ class MethodBenchmarkRunner:
             },
             "yarn": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
-                "rope_config": {
-                    "rope_type": "yarn",
-                    "factor": 4.0,
-                    "original_max_position_embeddings": 2048,
-                    "attention_factor": 1.0,
-                    "beta_fast": 32,
-                    "beta_slow": 1
-                },
-                "extra_params": {}
+                "rope_config": "yarn",
+                "extra_params": {
+                    "yarn_factor": 4.0,
+                    "yarn_original_max_position_embeddings": 2048,
+                    "yarn_beta_fast": 32,
+                    "yarn_beta_slow": 1
+                }
             },
             "longrope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
-                "rope_config": {
-                    "rope_type": "longrope",
-                    "factor": 4.0,
-                    "original_max_position_embeddings": 2048,
-                    "short_factor": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-                    "long_factor": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-                },
-                "extra_params": {}
+                "rope_config": "longrope",
+                "extra_params": {
+                    "longrope_factor": 8.0
+                }
             },
             "nope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
@@ -97,26 +91,31 @@ class MethodBenchmarkRunner:
             "flash_attn": "fa2",
             "use_cache": True,
             "low_cpu_mem_usage": True,
-            "temperature": self.temperature,
-            "do_sample": self.temperature > 0.0  # Enable sampling when temperature > 0
+            # Temperature and sampling configuration
+            "do_sample": self.temperature > 0.0,
         }
         
-        # Add rope scaling configuration
+        # Only set temperature if sampling is enabled to avoid warnings
+        if self.temperature > 0.0:
+            config["temperature"] = self.temperature
+        
+        # Add rope scaling configuration (360-LLaMA-Factory format)
         if rope_config:
             if isinstance(rope_config, str):
                 config["rope_scaling"] = rope_config
             elif isinstance(rope_config, dict):
-                if "rope_type" in rope_config:
-                    # Handle official rope types (YaRN, LongRope) with full dictionary
-                    config["rope_scaling"] = rope_config.copy()
-                elif "type" in rope_config:
-                    # Handle simple types (linear, dynamic)
+                if "type" in rope_config:
+                    # Simple types (linear, dynamic) - just pass the type string
                     rope_type = rope_config["type"]
                     if rope_type in ["linear", "dynamic"]:
                         config["rope_scaling"] = rope_type
-                        config["rope_factor"] = rope_config["factor"]
+                        # 360-LLaMA-Factory calculates factor automatically based on max_context
                     else:
                         config["rope_scaling"] = rope_config.copy()
+                else:
+                    # Complex types (yarn, longrope) - pass as string to trigger custom configuration
+                    if "rope_type" in rope_config:
+                        config["rope_scaling"] = rope_config["rope_type"]
         
         # Add extra parameters for specialized methods
         if extra_params:
