@@ -161,10 +161,13 @@ def run_eval() -> None:
     # Get eval args to check task type
     _, _, eval_args, _ = get_eval_args()
     
-    # Check if this is a needle haystack task
+    # Check task type and route to appropriate evaluator
     if eval_args.task.startswith("needle_haystack"):
         from .needle_haystack_evaluator import run_needle_haystack_eval
         run_needle_haystack_eval()
+    elif eval_args.task == "longbench_v2":
+        from .longbench_v2_evaluator import run_longbench_v2_eval
+        run_longbench_v2_eval()
     else:
         # Use standard evaluator for other tasks
         Evaluator().eval()

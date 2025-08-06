@@ -1,0 +1,24 @@
+# LongBench-v2 Evaluation Configuration
+# Integrated with 360-LLaMA-Factory
+
+model_name_or_path: "Qwen/Qwen2.5-0.5B-Instruct"  # Small model for testing
+finetuning_type: "full"
+template: "qwen"
+cutoff_len: 32768  # Start with manageable context length
+flash_attn: "disabled"  # Avoid CUDA issues
+use_cache: true
+low_cpu_mem_usage: true
+
+# LongBench-v2 specific settings
+task: "longbench_v2"
+task_dir: "evaluation/longbench_v2"
+lang: "en"
+batch_size: 1
+
+# Note: Generation settings are hardcoded in the evaluator for consistency
+
+# Save directory
+save_dir: "saves/longbench_v2_results"
+
+# Data subset for quick testing (will run full evaluation)
+eval_max_samples: 50  # Start with subset then run full benchmark

@@ -81,6 +81,10 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "Directory path for custom haystack text files (when data_source='directory'). Default: evaluation/needle_haystack/data/PaulGrahamEssays"},
     )
+    eval_max_samples: Optional[int] = field(
+        default=None,
+        metadata={"help": "Maximum number of samples to evaluate (useful for testing). If None, evaluate all samples."},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):
