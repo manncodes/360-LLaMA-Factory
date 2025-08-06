@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Simple orchestration script - all logic is in Python
-# Method-wise Long Context Benchmark
+# Test the new Python benchmark runner locally
 
-MODEL="/exp/model/Huggingface/meta-llama/Llama-3.2-1B"
+MODEL="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
 # Ensure required directories exist
 mkdir -p saves/methodwise
@@ -18,8 +17,10 @@ fi
 # Install required packages if needed
 python3 -c "import tqdm" 2>/dev/null || pip install tqdm
 
-# Run the benchmark
-echo "Starting method-wise benchmark..."
+echo "Starting test benchmark with new Python runner..."
+echo "Model: $MODEL"
+
+# Run the benchmark with local model
 python3 scripts/methods/benchmark_runner.py "$MODEL"
 
-echo "Benchmark complete!"
+echo "Test benchmark complete!"
