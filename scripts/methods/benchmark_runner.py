@@ -12,8 +12,9 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 class MethodBenchmarkRunner:
-    def __init__(self, model_path: str, results_dir: Optional[str] = None):
+    def __init__(self, model_path: str, results_dir: Optional[str] = None, temperature: float = 0.0):
         self.model_path = model_path
+        self.temperature = temperature  # Generation temperature (0.0 = deterministic)
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.results_dir = Path(results_dir or f"saves/methodwise/results_{self.timestamp}")
         self.results_dir.mkdir(parents=True, exist_ok=True)
@@ -95,7 +96,9 @@ class MethodBenchmarkRunner:
             "needle_haystack_data_source": "paulgraham",
             "flash_attn": "fa2",
             "use_cache": True,
-            "low_cpu_mem_usage": True
+            "low_cpu_mem_usage": True,
+            "temperature": self.temperature,
+            "do_sample": self.temperature > 0.0  # Enable sampling when temperature > 0
         }
         
         # Add rope scaling configuration
@@ -327,13 +330,44 @@ class MethodBenchmarkRunner:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python benchmark_runner.py <model_path> [results_dir]")
+        print("Usage: python benchmark_runner.py <model_path> [results_dir] [temperature]")
+        print("  model_path: Path to the model")
+        print("  results_dir: Optional results directory (default: saves/methodwise/results_TIMESTAMP)")
+        print("  temperature: Generation temperature (default: 0.0 for deterministic)")
+        print("               - 0.0: Deterministic (recommended for needle-in-haystack)")
+        print("               - 0.1-0.3: Slightly creative")  
+        print("               - 0.7-1.0: Very creative")
         sys.exit(1)
     
     model_path = sys.argv[1]
-    results_dir = sys.argv[2] if len(sys.argv) > 2 else None
+    results_dir = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].replace('.', '').isdigit() else None
     
-    runner = MethodBenchmarkRunner(model_path, results_dir)
+    # Parse temperature argument (can be 2nd or 3rd argument)
+    temperature = 0.0
+    temp_arg_idx = 3 if results_dir else 2
+    if len(sys.argv) > temp_arg_idx:
+        try:
+            temperature = float(sys.argv[temp_arg_idx])
+        except ValueError:
+            print(f"Warning: Invalid temperature '{sys.argv[temp_arg_idx]}', using default 0.0")
+    elif len(sys.argv) > 2 and sys.argv[2].replace('.', '').isdigit():
+        # Handle case where temperature is provided as 2nd argument
+        try:
+            temperature = float(sys.argv[2])
+            results_dir = None
+        except ValueError:
+            pass
+    
+    # Validate temperature range
+    if not (0.0 <= temperature <= 2.0):
+        print(f"Warning: Temperature {temperature} is outside typical range [0.0, 2.0]")
+    
+    print(f"Configuration:")
+    print(f"  Model: {model_path}")
+    print(f"  Results: {results_dir or 'saves/methodwise/results_TIMESTAMP'}")
+    print(f"  Temperature: {temperature} ({'deterministic' if temperature == 0.0 else 'sampling'})")
+    
+    runner = MethodBenchmarkRunner(model_path, results_dir, temperature)
     runner.run_all_benchmarks()
 
 if __name__ == "__main__":

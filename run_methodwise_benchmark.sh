@@ -4,6 +4,7 @@
 # Method-wise Long Context Benchmark
 
 MODEL="/exp/model/Huggingface/meta-llama/Llama-3.2-1B"
+TEMPERATURE="${1:-0.0}"  # Default to deterministic (0.0) for reliable results
 
 # Ensure required directories exist
 mkdir -p saves/methodwise
@@ -20,6 +21,7 @@ python3 -c "import yaml" 2>/dev/null || pip install PyYAML
 
 # Run the benchmark
 echo "Starting method-wise benchmark..."
-python3 scripts/methods/benchmark_runner.py "$MODEL"
+echo "Temperature: $TEMPERATURE (0.0=deterministic, >0.0=sampling)"
+python3 scripts/methods/benchmark_runner.py "$MODEL" "" "$TEMPERATURE"
 
 echo "Benchmark complete!"

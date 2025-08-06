@@ -3,6 +3,7 @@
 # Test the new Python benchmark runner locally
 
 MODEL="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+TEMPERATURE="${1:-0.0}"  # Default to deterministic for testing
 
 # Ensure required directories exist
 mkdir -p saves/methodwise
@@ -19,8 +20,9 @@ python3 -c "import yaml" 2>/dev/null || pip install PyYAML
 
 echo "Starting test benchmark with new Python runner..."
 echo "Model: $MODEL"
+echo "Temperature: $TEMPERATURE"
 
 # Run the benchmark with local model
-python3 scripts/methods/benchmark_runner.py "$MODEL"
+python3 scripts/methods/benchmark_runner.py "$MODEL" "" "$TEMPERATURE"
 
 echo "Test benchmark complete!"
