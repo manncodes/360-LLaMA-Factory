@@ -17,7 +17,7 @@ echo -e "${BLUE}============================================${NC}"
 # Configuration
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 RESULTS_DIR="saves/methodwise/results_${TIMESTAMP}"
-MODEL="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+MODEL="/exp/model/Huggingface/meta-llama/Llama-3.2-1B"
 
 # Ensure directories exist
 mkdir -p saves/methodwise
@@ -29,12 +29,12 @@ echo -e "${GREEN}Model: $MODEL${NC}"
 
 # Test configurations - only valid parameters
 declare -A METHODS
-METHODS["baseline"]="[2048, 4096]"
-METHODS["linear"]="[2048, 4096, 8192, 16384]"
-METHODS["dynamic"]="[2048, 4096, 8192, 16384]"
-METHODS["yarn"]="[2048, 4096, 8192, 16384, 32768]"
-METHODS["longrope"]="[2048, 4096, 8192, 16384, 32768]"
-METHODS["nope"]="[2048, 4096, 8192, 16384, 32768]"
+METHODS[baseline]="[2048, 4096]"
+METHODS[linear]="[2048, 4096, 8192, 16384]"
+METHODS[dynamic]="[2048, 4096, 8192, 16384]"
+METHODS[yarn]="[2048, 4096, 8192, 16384, 32768]"
+METHODS[longrope]="[2048, 4096, 8192, 16384, 32768]"
+METHODS[nope]="[2048, 4096, 8192, 16384, 32768]"
 
 # Create clean configuration
 create_method_config() {
@@ -235,6 +235,7 @@ with open('$RESULTS_DIR/detailed_results.jsonl', 'a') as f:
     
     # Clear GPU memory
     python3 -c "import torch; torch.cuda.empty_cache() if torch.cuda.is_available() else None" 2>/dev/null || true
+    sleep 2  # Brief pause between methods
 }
 
 # Initialize results
