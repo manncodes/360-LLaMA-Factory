@@ -72,8 +72,8 @@ class MethodBenchmarkRunner:
         max_context = max(contexts)
         config_file = Path(f"{method}_config.yaml")
         
-        # Clean up existing save directory to avoid conflicts
-        save_dir = Path(f"saves/methodwise/{method}")
+        # Create unique save directory to avoid conflicts
+        save_dir = Path(f"saves/methodwise/{method}_{self.timestamp}")
         if save_dir.exists():
             shutil.rmtree(save_dir)
         save_dir.mkdir(parents=True, exist_ok=True)
@@ -130,7 +130,7 @@ class MethodBenchmarkRunner:
         print(f"\nRunning {method.upper()} evaluation...")
         
         start_time = time.time()
-        result_dir = Path(f"saves/methodwise/{method}")
+        result_dir = Path(f"saves/methodwise/{method}_{self.timestamp}")
         
         # Run evaluation (tqdm progress is handled inside the evaluation script)
         cmd = ["python3", "run_needle_eval.py", str(config_file)]
