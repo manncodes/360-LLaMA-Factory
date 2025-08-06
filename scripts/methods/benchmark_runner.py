@@ -35,7 +35,7 @@ class MethodBenchmarkRunner:
             "yarn": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
                 "rope_config": {
-                    "type": "yarn",
+                    "rope_type": "yarn",
                     "factor": 4.0,
                     "original_max_position_embeddings": 2048,
                     "attention_factor": 1.0,
@@ -47,7 +47,9 @@ class MethodBenchmarkRunner:
             "longrope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
                 "rope_config": {
-                    "type": "longrope",
+                    "rope_type": "longrope",
+                    "factor": 4.0,
+                    "original_max_position_embeddings": 2048,
                     "short_factor": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
                     "long_factor": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
                 },
@@ -100,29 +102,18 @@ class MethodBenchmarkRunner:
         if rope_config:
             if isinstance(rope_config, str):
                 config["rope_scaling"] = rope_config
-            elif isinstance(rope_config, dict) and "type" in rope_config:
-                rope_type = rope_config["type"]
-                config["rope_scaling"] = rope_type
-                
-                if rope_type in ["linear", "dynamic"]:
-                    config["rope_factor"] = rope_config["factor"]
-                elif rope_type == "yarn":
-                    # Add rope_scaling as a dictionary for yarn
-                    config["rope_scaling"] = {
-                        "type": "yarn",
-                        "factor": rope_config["factor"],
-                        "original_max_position_embeddings": rope_config["original_max_position_embeddings"],
-                        "attention_factor": rope_config.get("attention_factor", 1.0),
-                        "beta_fast": rope_config["beta_fast"],
-                        "beta_slow": rope_config["beta_slow"]
-                    }
-                elif rope_type == "longrope":
-                    # Add rope_scaling as a dictionary for longrope
-                    config["rope_scaling"] = {
-                        "type": "longrope",
-                        "short_factor": rope_config["short_factor"],
-                        "long_factor": rope_config["long_factor"]
-                    }
+            elif isinstance(rope_config, dict):
+                if "rope_type" in rope_config:
+                    # Handle official rope types (YaRN, LongRope) with full dictionary
+                    config["rope_scaling"] = rope_config.copy()
+                elif "type" in rope_config:
+                    # Handle simple types (linear, dynamic)
+                    rope_type = rope_config["type"]
+                    if rope_type in ["linear", "dynamic"]:
+                        config["rope_scaling"] = rope_type
+                        config["rope_factor"] = rope_config["factor"]
+                    else:
+                        config["rope_scaling"] = rope_config.copy()
         
         # Add extra parameters for specialized methods
         if extra_params:
