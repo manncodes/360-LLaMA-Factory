@@ -34,21 +34,24 @@ class MethodBenchmarkRunner:
             },
             "yarn": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
-                "rope_config": "yarn",
-                "extra_params": {
-                    "yarn_factor": 4.0,
-                    "yarn_original_max_position_embeddings": 2048,
-                    "yarn_beta_fast": 32,
-                    "yarn_beta_slow": 1
-                }
+                "rope_config": {
+                    "type": "yarn",
+                    "factor": 4.0,
+                    "original_max_position_embeddings": 2048,
+                    "attention_factor": 1.0,
+                    "beta_fast": 32,
+                    "beta_slow": 1
+                },
+                "extra_params": {}
             },
             "longrope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
-                "rope_config": "longrope",
-                "extra_params": {
-                    "longrope_short_factor": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-                    "longrope_long_factor": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-                }
+                "rope_config": {
+                    "type": "longrope",
+                    "short_factor": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                    "long_factor": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+                },
+                "extra_params": {}
             },
             "nope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
@@ -71,6 +74,7 @@ class MethodBenchmarkRunner:
         save_dir = Path(f"saves/methodwise/{method}")
         if save_dir.exists():
             shutil.rmtree(save_dir)
+        save_dir.mkdir(parents=True, exist_ok=True)
         
         config = {
             "model_name_or_path": self.model_path,
@@ -97,9 +101,28 @@ class MethodBenchmarkRunner:
             if isinstance(rope_config, str):
                 config["rope_scaling"] = rope_config
             elif isinstance(rope_config, dict) and "type" in rope_config:
-                config["rope_scaling"] = rope_config["type"]
-                if rope_config["type"] in ["linear", "dynamic"]:
+                rope_type = rope_config["type"]
+                config["rope_scaling"] = rope_type
+                
+                if rope_type in ["linear", "dynamic"]:
                     config["rope_factor"] = rope_config["factor"]
+                elif rope_type == "yarn":
+                    # Add rope_scaling as a dictionary for yarn
+                    config["rope_scaling"] = {
+                        "type": "yarn",
+                        "factor": rope_config["factor"],
+                        "original_max_position_embeddings": rope_config["original_max_position_embeddings"],
+                        "attention_factor": rope_config.get("attention_factor", 1.0),
+                        "beta_fast": rope_config["beta_fast"],
+                        "beta_slow": rope_config["beta_slow"]
+                    }
+                elif rope_type == "longrope":
+                    # Add rope_scaling as a dictionary for longrope
+                    config["rope_scaling"] = {
+                        "type": "longrope",
+                        "short_factor": rope_config["short_factor"],
+                        "long_factor": rope_config["long_factor"]
+                    }
         
         # Add extra parameters for specialized methods
         if extra_params:
