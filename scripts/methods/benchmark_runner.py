@@ -9,13 +9,13 @@ import subprocess
 import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 class MethodBenchmarkRunner:
     def __init__(self, model_path: str, results_dir: Optional[str] = None, temperature: float = 0.0):
         self.model_path = model_path
         self.temperature = temperature  # Generation temperature (0.0 = deterministic)
-        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         self.results_dir = Path(results_dir or f"saves/methodwise/results_{self.timestamp}")
         self.results_dir.mkdir(parents=True, exist_ok=True)
         
@@ -36,19 +36,12 @@ class MethodBenchmarkRunner:
             "yarn": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
                 "rope_config": "yarn",
-                "extra_params": {
-                    "yarn_factor": 4.0,
-                    "yarn_original_max_position_embeddings": 2048,
-                    "yarn_beta_fast": 32,
-                    "yarn_beta_slow": 1
-                }
+                "extra_params": {}
             },
             "longrope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
                 "rope_config": "longrope",
-                "extra_params": {
-                    "longrope_factor": 8.0
-                }
+                "extra_params": {}
             },
             "nope": {
                 "contexts": [2048, 4096, 8192, 16384, 32768], 
@@ -62,16 +55,15 @@ class MethodBenchmarkRunner:
         self.detailed_log_file = self.results_dir / "detailed_results.jsonl"
         self.csv_file = self.results_dir / "results.csv"
         
-    def create_config(self, method: str, contexts: List[int], rope_config = None, extra_params: Optional[Dict] = None) -> Path:
+    def create_config(self, method: str, contexts: List[int], rope_config = None, extra_params: Optional[Dict] = None) -> Tuple[Path, Path]:
         """Create YAML configuration for a method"""
         max_context = max(contexts)
         config_file = Path(f"{method}_config.yaml")
         
-        # Create unique save directory to avoid conflicts
-        save_dir = Path(f"saves/methodwise/{method}_{self.timestamp}")
-        if save_dir.exists():
-            shutil.rmtree(save_dir)
-        save_dir.mkdir(parents=True, exist_ok=True)
+        # Create unique save directory path (don't create yet - let evaluation script create it)
+        unique_id = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        save_dir = Path(f"saves/methodwise/{method}_{unique_id}")
+        # Don't create the directory - evaluation script will create it
         
         config = {
             "model_name_or_path": self.model_path,
@@ -84,20 +76,17 @@ class MethodBenchmarkRunner:
             "save_dir": str(save_dir),
             "batch_size": 1,
             "needle_context_lengths": contexts,
-            "needle_depth_percents": [10, 50, 90],
+            "needle_depth_percents": [25, 50, 75],
             "needle_text": f"The benchmark secret is METHOD_{method.upper()}_SUCCESS.",
             "needle_question": "What is the benchmark secret mentioned in the document?",
             "needle_haystack_data_source": "paulgraham",
-            "flash_attn": "fa2",
+            "flash_attn": "disabled",  # Disable flash attention to avoid CUDA issues
             "use_cache": True,
             "low_cpu_mem_usage": True,
-            # Temperature and sampling configuration
-            "do_sample": self.temperature > 0.0,
         }
         
-        # Only set temperature if sampling is enabled to avoid warnings
-        if self.temperature > 0.0:
-            config["temperature"] = self.temperature
+        # Note: Generation parameters like temperature/do_sample are not supported by needle_haystack evaluator
+        # The evaluator hardcodes do_sample=False for deterministic evaluation
         
         # Add rope scaling configuration (360-LLaMA-Factory format)
         if rope_config:
@@ -125,14 +114,13 @@ class MethodBenchmarkRunner:
         with open(config_file, 'w') as f:
             yaml.dump(config, f, default_flow_style=False, allow_unicode=True, indent=2)
         
-        return config_file
+        return config_file, save_dir
     
-    def run_evaluation(self, method: str, config_file: Path, timeout: int = 1800) -> Dict:
+    def run_evaluation(self, method: str, config_file: Path, result_dir: Path, timeout: int = 1800) -> Dict:
         """Run evaluation for a single method"""
         print(f"\nRunning {method.upper()} evaluation...")
         
         start_time = time.time()
-        result_dir = Path(f"saves/methodwise/{method}_{self.timestamp}")
         
         # Run evaluation (tqdm progress is handled inside the evaluation script)
         cmd = ["python3", "run_needle_eval.py", str(config_file)]
@@ -274,10 +262,10 @@ class MethodBenchmarkRunner:
             
             # Create configuration
             extra_params = config.get("extra_params", {})
-            config_file = self.create_config(method, config["contexts"], config.get("rope_config"), extra_params)
+            config_file, save_dir = self.create_config(method, config["contexts"], config.get("rope_config"), extra_params)
             
             # Run evaluation
-            result = self.run_evaluation(method, config_file, timeout=1800)
+            result = self.run_evaluation(method, config_file, save_dir, timeout=1800)
             self.results.append(result)
             
             # Cleanup config file

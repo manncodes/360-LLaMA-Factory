@@ -3,7 +3,7 @@
 # Simple orchestration script - all logic is in Python
 # Method-wise Long Context Benchmark
 
-MODEL="/exp/model/Huggingface/meta-llama/Llama-3.2-1B"
+MODEL="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 TEMPERATURE="${1:-0.0}"  # Default to deterministic (0.0) for reliable results
 
 # Ensure required directories exist
