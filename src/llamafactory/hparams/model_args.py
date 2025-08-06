@@ -201,9 +201,9 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
         default=True,
         metadata={"help": "Whether or not to use memory-efficient model loading."},
     )
-    rope_scaling: Optional[Literal["linear", "dynamic"]] = field(
+    rope_scaling: Optional[Literal["linear", "dynamic", "yarn", "longrope", "nope"]] = field(
         default=None,
-        metadata={"help": "Which scaling strategy should be adopted for the RoPE embeddings."},
+        metadata={"help": "Which scaling strategy should be adopted for the RoPE embeddings. Options: linear, dynamic, yarn, longrope, nope."},
     )
     flash_attn: Literal["auto", "disabled", "sdpa", "fa2"] = field(
         default="auto",

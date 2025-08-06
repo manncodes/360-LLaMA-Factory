@@ -20,6 +20,9 @@ import math
 from typing import TYPE_CHECKING
 
 from ...extras import logging
+from .yarn_rope import configure_yarn
+from .longrope import configure_longrope
+from .nope import configure_nope
 
 
 if TYPE_CHECKING:
@@ -33,6 +36,17 @@ logger = logging.get_logger(__name__)
 
 def configure_rope(config: "PretrainedConfig", model_args: "ModelArguments", is_trainable: bool) -> None:
     if model_args.rope_scaling is None:
+        return
+
+    # Handle new methods first
+    if model_args.rope_scaling == "yarn":
+        configure_yarn(config, model_args, is_trainable)
+        return
+    elif model_args.rope_scaling == "longrope":
+        configure_longrope(config, model_args, is_trainable)
+        return
+    elif model_args.rope_scaling == "nope":
+        configure_nope(config, model_args, is_trainable)
         return
 
     if not hasattr(config, "rope_scaling"):

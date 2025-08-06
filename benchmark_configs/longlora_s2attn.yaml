@@ -1,0 +1,17 @@
+### Benchmark config for LongLoRA with S²-Attn
+model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
+template: llama3
+
+### Long context settings
+rope_scaling: linear
+model_max_length: 32768
+shift_attn: true  # Enable S²-Attn from LongLoRA
+
+### Optimization
+flash_attn: fa2
+use_cache: true
+
+### Inference settings
+do_sample: false
+temperature: 0.1
+max_new_tokens: 100

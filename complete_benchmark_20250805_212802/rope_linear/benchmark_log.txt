@@ -1,0 +1,155 @@
+/home/mann/.local/lib/python3.12/site-packages/matplotlib/projections/__init__.py:63: UserWarning: Unable to import Axes3D. This may be due to multiple versions of Matplotlib being installed (e.g. as a system package and as a pip package). As a result, the 3D projection is not available.
+  warnings.warn("Unable to import Axes3D. This may be due to multiple versions of "
+[INFO|configuration_utils.py:679] 2025-08-05 21:28:29,641 >> loading configuration file config.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/config.json
+[INFO|configuration_utils.py:746] 2025-08-05 21:28:29,643 >> Model config LlamaConfig {
+  "_name_or_path": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "architectures": [
+    "LlamaForCausalLM"
+  ],
+  "attention_bias": false,
+  "attention_dropout": 0.0,
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "head_dim": 64,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 5632,
+  "max_position_embeddings": 2048,
+  "mlp_bias": false,
+  "model_type": "llama",
+  "num_attention_heads": 32,
+  "num_hidden_layers": 22,
+  "num_key_value_heads": 4,
+  "pretraining_tp": 1,
+  "rms_norm_eps": 1e-05,
+  "rope_scaling": null,
+  "rope_theta": 10000.0,
+  "tie_word_embeddings": false,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.46.1",
+  "use_cache": true,
+  "vocab_size": 32000
+}
+
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:29,701 >> loading file tokenizer.model from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/tokenizer.model
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:29,702 >> loading file tokenizer.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/tokenizer.json
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:29,703 >> loading file added_tokens.json from cache at None
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:29,703 >> loading file special_tokens_map.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/special_tokens_map.json
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:29,704 >> loading file tokenizer_config.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/tokenizer_config.json
+[INFO|configuration_utils.py:679] 2025-08-05 21:28:30,012 >> loading configuration file config.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/config.json
+[INFO|configuration_utils.py:746] 2025-08-05 21:28:30,014 >> Model config LlamaConfig {
+  "_name_or_path": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "architectures": [
+    "LlamaForCausalLM"
+  ],
+  "attention_bias": false,
+  "attention_dropout": 0.0,
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "head_dim": 64,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 5632,
+  "max_position_embeddings": 2048,
+  "mlp_bias": false,
+  "model_type": "llama",
+  "num_attention_heads": 32,
+  "num_hidden_layers": 22,
+  "num_key_value_heads": 4,
+  "pretraining_tp": 1,
+  "rms_norm_eps": 1e-05,
+  "rope_scaling": null,
+  "rope_theta": 10000.0,
+  "tie_word_embeddings": false,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.46.1",
+  "use_cache": true,
+  "vocab_size": 32000
+}
+
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:30,067 >> loading file tokenizer.model from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/tokenizer.model
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:30,068 >> loading file tokenizer.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/tokenizer.json
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:30,068 >> loading file added_tokens.json from cache at None
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:30,069 >> loading file special_tokens_map.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/special_tokens_map.json
+[INFO|tokenization_utils_base.py:2211] 2025-08-05 21:28:30,069 >> loading file tokenizer_config.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/tokenizer_config.json
+Running needle haystack evaluation with config: needle_haystack_evaluation/rope_linear_config.yaml
+[INFO|2025-08-05 21:28:30] llamafactory.data.template:157 >> Replace eos token: <|eot_id|>
+[WARNING|2025-08-05 21:28:30] llamafactory.data.template:162 >> New tokens have been added, make sure `resize_vocab` is True.
+[INFO|configuration_utils.py:679] 2025-08-05 21:28:30,256 >> loading configuration file config.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/config.json
+[INFO|configuration_utils.py:746] 2025-08-05 21:28:30,258 >> Model config LlamaConfig {
+  "_name_or_path": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "architectures": [
+    "LlamaForCausalLM"
+  ],
+  "attention_bias": false,
+  "attention_dropout": 0.0,
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "head_dim": 64,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "initializer_range": 0.02,
+  "intermediate_size": 5632,
+  "max_position_embeddings": 2048,
+  "mlp_bias": false,
+  "model_type": "llama",
+  "num_attention_heads": 32,
+  "num_hidden_layers": 22,
+  "num_key_value_heads": 4,
+  "pretraining_tp": 1,
+  "rms_norm_eps": 1e-05,
+  "rope_scaling": null,
+  "rope_theta": 10000.0,
+  "tie_word_embeddings": false,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.46.1",
+  "use_cache": true,
+  "vocab_size": 32000
+}
+
+[INFO|2025-08-05 21:28:30] llamafactory.model.model_utils.rope:157 >> Using linear scaling strategy and setting scaling factor to 2.0
+[INFO|2025-08-05 21:28:30] llamafactory.model.patcher:157 >> Using KV cache for faster generation.
+[INFO|modeling_utils.py:3937] 2025-08-05 21:28:30,312 >> loading weights file model.safetensors from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/model.safetensors
+[INFO|modeling_utils.py:1670] 2025-08-05 21:28:30,326 >> Instantiating LlamaForCausalLM model under default dtype torch.bfloat16.
+[INFO|configuration_utils.py:1096] 2025-08-05 21:28:30,331 >> Generate config GenerationConfig {
+  "bos_token_id": 1,
+  "eos_token_id": 2
+}
+
+[INFO|modeling_utils.py:4800] 2025-08-05 21:28:38,934 >> All model checkpoint weights were used when initializing LlamaForCausalLM.
+
+[INFO|modeling_utils.py:4808] 2025-08-05 21:28:38,940 >> All the weights of LlamaForCausalLM were initialized from the model checkpoint at TinyLlama/TinyLlama-1.1B-Chat-v1.0.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use LlamaForCausalLM for predictions without further training.
+[INFO|configuration_utils.py:1051] 2025-08-05 21:28:39,021 >> loading configuration file generation_config.json from cache at /home/mann/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/generation_config.json
+[INFO|configuration_utils.py:1096] 2025-08-05 21:28:39,023 >> Generate config GenerationConfig {
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "max_length": 2048,
+  "pad_token_id": 0
+}
+
+[INFO|2025-08-05 21:28:39] llamafactory.model.model_utils.attention:157 >> Using torch SDPA for faster training and inference.
+[INFO|2025-08-05 21:28:39] llamafactory.model.loader:157 >> all params: 1,100,048,384
+Processing examples:   0%|          | 0/36 [00:00<?, ?it/s]Processing examples:   3%|▎         | 1/36 [00:06<03:38,  6.24s/it]Processing examples:   3%|▎         | 1/36 [00:06<03:39,  6.27s/it]
+Generation error: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/MANN PATEL/claude_code/long-context/360-LLaMA-Factory/run_needle_eval.py", line 25, in <module>
+    run_eval()
+  File "/mnt/c/Users/MANN PATEL/claude_code/long-context/360-LLaMA-Factory/src/llamafactory/eval/evaluator.py", line 167, in run_eval
+    run_needle_haystack_eval()
+  File "/mnt/c/Users/MANN PATEL/claude_code/long-context/360-LLaMA-Factory/src/llamafactory/eval/needle_haystack_evaluator.py", line 367, in run_needle_haystack_eval
+    NeedleHaystackEvaluator().eval()
+  File "/mnt/c/Users/MANN PATEL/claude_code/long-context/360-LLaMA-Factory/src/llamafactory/eval/needle_haystack_evaluator.py", line 166, in eval
+    input_tensor = torch.tensor([input_ids], device=self.model.device)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+

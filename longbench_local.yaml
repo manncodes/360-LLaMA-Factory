@@ -1,0 +1,13 @@
+# LongBench v2 Configuration using local dataset
+# Uses the symlinked dataset at data/longbench/LongBench-v2
+
+model_name_or_path: gpt2
+finetuning_type: full
+task: longbench
+save_dir: saves/longbench_local
+template: default
+
+# LongBench specific settings
+longbench_max_length: 8192    # Conservative context length  
+longbench_max_samples: 3      # Only 3 samples for testing
+longbench_use_local: true     # Force using local dataset
