@@ -6,6 +6,7 @@ import json
 import time
 import shutil
 import subprocess
+import yaml
 from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
@@ -105,10 +106,9 @@ class MethodBenchmarkRunner:
         if extra_params:
             config.update(extra_params)
         
-        # Write YAML file
+        # Write proper YAML file
         with open(config_file, 'w') as f:
-            for key, value in config.items():
-                f.write(f"{key}: {value}\n")
+            yaml.dump(config, f, default_flow_style=False, allow_unicode=True, indent=2)
         
         return config_file
     

@@ -16,7 +16,7 @@ if [ ! -f "scripts/methods/benchmark_runner.py" ]; then
 fi
 
 # Install required packages if needed
-python3 -c "import tqdm" 2>/dev/null || pip install tqdm
+python3 -c "import tqdm, yaml" 2>/dev/null || pip install tqdm PyYAML
 
 # Run the benchmark
 echo "Starting method-wise benchmark..."
