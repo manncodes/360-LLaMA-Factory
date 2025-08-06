@@ -1,7 +1,0 @@
-Status,Method,Duration(s)
-SUCCESS,baseline,15
-SUCCESS,rope_linear,31
-SUCCESS,rope_dynamic,30
-SUCCESS,yarn,12
-SUCCESS,longrope,12
-SUCCESS,nope,13

@@ -1,8 +1,0 @@
-/home/mann/.local/lib/python3.12/site-packages/matplotlib/projections/__init__.py:63: UserWarning: Unable to import Axes3D. This may be due to multiple versions of Matplotlib being installed (e.g. as a system package and as a pip package). As a result, the 3D projection is not available.
-  warnings.warn("Unable to import Axes3D. This may be due to multiple versions of "
-usage: plot_niah_comparison.py [-h] [--saves-dir SAVES_DIR]
-                               [--experiments EXPERIMENTS [EXPERIMENTS ...]]
-                               [--output-dir OUTPUT_DIR]
-                               [--plot-type {overall,context,depth,heatmap,all}]
-                               [--experiment-for-heatmap EXPERIMENT_FOR_HEATMAP]
-plot_niah_comparison.py: error: unrecognized arguments: --dirs saves/tinyllama/needle_haystack_baseline saves/tinyllama/needle_haystack_rope_linear saves/tinyllama/needle_haystack_rope_dynamic --labels Baseline Linear RoPE Dynamic NTK
