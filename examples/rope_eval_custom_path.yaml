@@ -1,0 +1,41 @@
+# Example configuration with custom path to PaulGraham essays
+
+model_name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+
+rope_techniques:
+  - baseline
+  - linear
+
+context_lengths:
+  - 2048
+  - 4096
+
+base_context_length: 2048
+
+# SPECIFY EXACT PATH TO PAULGRAHAM ESSAYS
+# Option 1: Relative path from where you run the script
+haystack_source: "./evaluation/needle_haystack/data/PaulGrahamEssays"
+
+# Option 2: Absolute path (replace with your actual path)
+# haystack_source: "/path/to/your/360-LLaMA-Factory/evaluation/needle_haystack/data/PaulGrahamEssays"
+
+# Option 3: If you cloned LLMTest_NeedleInAHaystack separately
+# haystack_source: "../LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays"
+
+# Option 4: Use your own text files directory
+# haystack_source: "/path/to/your/custom/text/files"
+
+# Option 5: Use a single text file
+# haystack_source: "/path/to/your/document.txt"
+
+needle_text: "The secret key is: BENCHMARK_SUCCESS_42"
+retrieval_question: "What is the secret key?"
+
+depth_percents:
+  - 0.1
+  - 0.5
+  - 0.9
+
+samples_per_needle: 1
+
+output_dir: "./results"

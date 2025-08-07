@@ -309,6 +309,11 @@ def main():
         choices=["zigzag-ring", "ulysses", "llama3"],
         help="Sequence parallelism mode"
     )
+    parser.add_argument(
+        "--haystack-path",
+        type=str,
+        help="Path to haystack data (directory with .txt files or single file)"
+    )
     
     args = parser.parse_args()
     
@@ -334,6 +339,8 @@ def main():
         config["rope_techniques"] = args.techniques
     if args.contexts:
         config["context_lengths"] = args.contexts
+    if args.haystack_path:
+        config["haystack_source"] = args.haystack_path
     config["device"] = args.device
     config["output_dir"] = args.output_dir
     
