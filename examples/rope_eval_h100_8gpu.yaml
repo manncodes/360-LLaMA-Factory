@@ -57,7 +57,9 @@ depth_percents:
 samples_per_needle: 5
 
 # Dataset source
-haystack_source: "paulgraham"
+haystack_source: "paulgraham"  # Auto-detect location
+# Alternative: specify exact path
+# haystack_source: "./evaluation/needle_haystack/data/PaulGrahamEssays"
 
 # Performance optimizations
 batch_size: 1  # Large contexts require small batches

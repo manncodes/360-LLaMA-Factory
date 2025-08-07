@@ -43,17 +43,32 @@ class NeedleInHaystackEvaluator:
     def load_haystack_data(self):
         """Load haystack data from PaulGraham essays or custom source."""
         if self.config.haystack_source == "paulgraham":
-            # Use existing PaulGraham essays
-            essays_dir = Path(__file__).parent.parent.parent / "LLMTest_NeedleInAHaystack" / "needlehaystack" / "PaulGrahamEssays"
+            # Try multiple possible locations for PaulGraham essays
+            possible_paths = [
+                # Within 360-LLaMA-Factory structure
+                Path(__file__).parent.parent.parent / "evaluation" / "needle_haystack" / "data" / "PaulGrahamEssays",
+                # Standard LLMTest_NeedleInAHaystack location
+                Path(__file__).parent.parent.parent.parent / "LLMTest_NeedleInAHaystack" / "needlehaystack" / "PaulGrahamEssays",
+                # Relative to current working directory
+                Path.cwd() / "evaluation" / "needle_haystack" / "data" / "PaulGrahamEssays",
+                Path.cwd() / "LLMTest_NeedleInAHaystack" / "needlehaystack" / "PaulGrahamEssays",
+            ]
             
-            if essays_dir.exists():
+            essays_dir = None
+            for path in possible_paths:
+                if path.exists():
+                    essays_dir = path
+                    break
+            
+            if essays_dir and essays_dir.exists():
                 for essay_file in essays_dir.glob("*.txt"):
                     with open(essay_file, 'r', encoding='utf-8') as f:
                         self.haystack_texts.append(f.read())
-                print(f"Loaded {len(self.haystack_texts)} PaulGraham essays")
+                print(f"Loaded {len(self.haystack_texts)} PaulGraham essays from {essays_dir}")
             else:
                 # Fallback to generic text
-                print("PaulGraham essays not found, using generic haystack")
+                print("PaulGraham essays not found in standard locations, using generic haystack")
+                print(f"Searched in: {[str(p) for p in possible_paths]}")
                 self.haystack_texts = [self._generate_generic_haystack()]
         else:
             # Load from custom path
