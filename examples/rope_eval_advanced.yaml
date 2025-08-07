@@ -1,0 +1,56 @@
+# Advanced RoPE Evaluation Configuration for Production Models
+
+# Model configuration
+model_name: "meta-llama/Llama-2-7b-hf"  # Can use any HuggingFace model
+
+# RoPE techniques to evaluate
+rope_techniques:
+  - baseline
+  - linear
+  - dynamic
+  - yarn
+  - longrope
+  # - llama3  # For Llama-3 models only
+
+# Context lengths to test (in tokens)
+context_lengths:
+  - 4096   # Base
+  - 8192   # 2x
+  - 16384  # 4x
+  - 32768  # 8x
+  # - 65536  # 16x - Very long context
+
+# Base context length (original training context)
+base_context_length: 4096
+
+# Needle configuration
+needle_text: "The benchmark validation code is: ALPHA_BRAVO_CHARLIE_2024"
+retrieval_question: "What is the benchmark validation code?"
+
+# Depth percentages (where to place the needle)
+depth_percents:
+  - 0.0   # Very beginning
+  - 0.1
+  - 0.25
+  - 0.5   # Middle
+  - 0.75
+  - 0.9
+  - 1.0   # Very end
+
+# Number of samples per needle position
+samples_per_needle: 3  # Multiple samples for statistical significance
+
+# Dataset source
+haystack_source: "paulgraham"
+
+# RoPE theta values to test (optional)
+rope_theta_values:
+  - 10000.0    # Original
+  - 500000.0   # Llama-3 default
+  - 1000000.0  # Extended context
+
+# Device configuration
+device: "cuda"
+
+# Output configuration
+output_dir: "./rope_results_advanced"

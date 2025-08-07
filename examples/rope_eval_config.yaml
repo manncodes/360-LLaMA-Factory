@@ -1,0 +1,47 @@
+# RoPE Needle-in-Haystack Evaluation Configuration
+
+# Model configuration
+model_name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # Small model for testing
+
+# RoPE techniques to evaluate
+rope_techniques:
+  - baseline
+  - linear
+  - dynamic
+  # - yarn  # Uncomment for more advanced techniques
+  # - longrope
+  # - llama3
+
+# Context lengths to test (in tokens)
+context_lengths:
+  - 2048
+  - 4096
+  - 8192
+  # - 16384  # Uncomment for longer contexts
+
+# Base context length (original training context)
+base_context_length: 2048
+
+# Needle configuration
+needle_text: "The secret key is: BENCHMARK_SUCCESS_42"
+retrieval_question: "What is the secret key mentioned in the document?"
+
+# Depth percentages (where to place the needle)
+depth_percents:
+  - 0.1  # Near beginning
+  - 0.3
+  - 0.5  # Middle
+  - 0.7
+  - 0.9  # Near end
+
+# Number of samples per needle position
+samples_per_needle: 1
+
+# Dataset source (paulgraham or path to custom data)
+haystack_source: "paulgraham"
+
+# Device configuration
+device: "cuda"  # or "cpu"
+
+# Output configuration
+output_dir: "./rope_results"
