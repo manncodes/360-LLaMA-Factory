@@ -55,5 +55,14 @@ haystack_source: "paulgraham"
 batch_size: 1
 max_memory_per_gpu: "75GB"
 
+# Generation and sampling settings
+generation_config:
+  temperature: 0.0        # Deterministic for consistency
+  do_sample: false        
+  top_p: 0.9             
+  top_k: 50              
+  max_new_tokens: 50     
+  repetition_penalty: 1.0 
+
 # Output configuration
 output_dir: "./h100_4gpu_results"

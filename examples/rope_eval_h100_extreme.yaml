@@ -93,6 +93,15 @@ monitoring:
   temperature_monitoring: true
   power_consumption: true
 
+# Generation and sampling settings
+generation_config:
+  # Conservative settings for extreme contexts
+  temperature: 0.0        # Deterministic to avoid variability
+  do_sample: false        
+  max_new_tokens: 30      # Shorter responses for extreme contexts
+  repetition_penalty: 1.0 
+  use_cache: true
+
 # Safety settings
 safety:
   memory_threshold: 0.95  # Stop if memory usage > 95%

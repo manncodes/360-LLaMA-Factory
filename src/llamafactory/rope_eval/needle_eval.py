@@ -151,9 +151,24 @@ class NeedleInHaystackEvaluator:
                     
         return test_cases
         
-    def evaluate_model(self, model, tokenizer, test_cases: List[Dict]) -> List[Dict]:
-        """Evaluate model on test cases."""
+    def evaluate_model(self, model, tokenizer, test_cases: List[Dict], generation_config: Optional[Dict] = None) -> List[Dict]:
+        """Evaluate model on test cases with configurable generation."""
         results = []
+        
+        # Default generation config
+        gen_config = {
+            "max_new_tokens": 100,
+            "do_sample": False,
+            "temperature": 0.0,
+            "top_p": 0.9,
+            "top_k": 50,
+            "repetition_penalty": 1.0,
+            "pad_token_id": tokenizer.pad_token_id
+        }
+        
+        # Override with provided config
+        if generation_config:
+            gen_config.update(generation_config)
         
         for test_case in tqdm(test_cases, desc="Evaluating"):
             # Format prompt
@@ -166,13 +181,11 @@ class NeedleInHaystackEvaluator:
             device = next(model.parameters()).device
             inputs = {k: v.to(device) for k, v in inputs.items()}
             
-            # Generate
+            # Generate with config
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
-                    max_new_tokens=100,
-                    do_sample=False,  # Deterministic
-                    pad_token_id=tokenizer.pad_token_id
+                    **gen_config
                 )
                 
             # Decode response
@@ -183,16 +196,19 @@ class NeedleInHaystackEvaluator:
             
             result = {
                 **test_case,
+                "input_prompt": prompt,  # Save the full input
                 "response": response,
                 "needle_found": needle_found,
-                "score": 1.0 if needle_found else 0.0
+                "score": 1.0 if needle_found else 0.0,
+                "input_tokens": inputs['input_ids'].shape[1],  # Token count
+                "output_tokens": len(outputs[0]) - inputs['input_ids'].shape[1]  # Generated tokens
             }
             results.append(result)
             
         return results
         
-    def run_evaluation(self, model, tokenizer) -> Dict:
-        """Run complete evaluation."""
+    def run_evaluation(self, model, tokenizer, generation_config: Optional[Dict] = None) -> Dict:
+        """Run complete evaluation with optional generation config."""
         # Load haystack data
         self.load_haystack_data()
         
@@ -200,8 +216,8 @@ class NeedleInHaystackEvaluator:
         test_cases = self.generate_test_cases()
         print(f"Generated {len(test_cases)} test cases")
         
-        # Evaluate model
-        results = self.evaluate_model(model, tokenizer, test_cases)
+        # Evaluate model with generation config
+        results = self.evaluate_model(model, tokenizer, test_cases, generation_config)
         
         # Aggregate results
         summary = self.aggregate_results(results)
@@ -242,11 +258,11 @@ class NeedleInHaystackEvaluator:
         return summary
         
     def save_results(self, results: List[Dict], summary: Dict):
-        """Save evaluation results."""
+        """Save evaluation results with inputs and outputs."""
         results_dir = Path(self.config.results_dir)
         results_dir.mkdir(parents=True, exist_ok=True)
         
-        # Save detailed results
+        # Save detailed results with everything
         with open(results_dir / "detailed_results.json", 'w') as f:
             json.dump(results, f, indent=2)
             
@@ -254,7 +270,40 @@ class NeedleInHaystackEvaluator:
         with open(results_dir / "summary.json", 'w') as f:
             json.dump(summary, f, indent=2)
             
+        # Save inputs and outputs separately for easier analysis
+        inputs_outputs = []
+        for r in results:
+            inputs_outputs.append({
+                "context_length": r["context_length"],
+                "depth_percent": r["depth_percent"],
+                "sample_idx": r.get("sample_idx", 0),
+                "input_prompt": r.get("input_prompt", ""),
+                "response": r["response"],
+                "needle_found": r["needle_found"],
+                "input_tokens": r.get("input_tokens", 0),
+                "output_tokens": r.get("output_tokens", 0)
+            })
+        
+        with open(results_dir / "inputs_outputs.json", 'w') as f:
+            json.dump(inputs_outputs, f, indent=2)
+            
+        # Save a readable text version
+        with open(results_dir / "generations.txt", 'w') as f:
+            for i, r in enumerate(results):
+                f.write(f"{'='*80}\n")
+                f.write(f"Sample {i+1}: Context={r['context_length']}, Depth={r['depth_percent']}\n")
+                f.write(f"Needle Found: {r['needle_found']}\n")
+                f.write(f"Input Tokens: {r.get('input_tokens', 0)}, Output Tokens: {r.get('output_tokens', 0)}\n")
+                f.write(f"-"*40 + " PROMPT " + "-"*40 + "\n")
+                f.write(r.get("input_prompt", "")[:500] + "...\n" if len(r.get("input_prompt", "")) > 500 else r.get("input_prompt", "") + "\n")
+                f.write(f"-"*40 + " RESPONSE " + "-"*38 + "\n")
+                f.write(r["response"] + "\n")
+                f.write("\n")
+            
         print(f"Results saved to {results_dir}")
+        print(f"  - detailed_results.json: Complete results with all data")
+        print(f"  - inputs_outputs.json: Focused on prompts and generations")
+        print(f"  - generations.txt: Human-readable format")
 
 
 # Add torch import for model evaluation

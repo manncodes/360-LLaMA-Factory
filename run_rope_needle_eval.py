@@ -34,7 +34,8 @@ def run_single_evaluation(
     needle_config: NeedleConfig,
     rope_manager: RoPEManager,
     sequence_parallel: Optional[SequenceParallelConfig] = None,
-    device: str = "cuda"
+    device: str = "cuda",
+    config: Dict = None
 ) -> Dict:
     """Run a single evaluation with specific RoPE configuration."""
     
@@ -64,9 +65,12 @@ def run_single_evaluation(
     # Update needle config for this specific context length
     needle_config.context_lengths = [context_length]
     
-    # Create evaluator and run
+    # Extract generation config from main config if present
+    generation_config = config.get("generation_config", None) if config else None
+    
+    # Create evaluator and run with generation config
     evaluator = NeedleInHaystackEvaluator(needle_config)
-    results = evaluator.run_evaluation(model, tokenizer)
+    results = evaluator.run_evaluation(model, tokenizer, generation_config)
     
     # Add metadata
     results["rope_technique"] = rope_technique
@@ -138,7 +142,8 @@ def run_rope_analysis(config: Dict):
                     needle_config,
                     rope_manager,
                     sequence_parallel=sequence_parallel,
-                    device=config.get("device", "cuda")
+                    device=config.get("device", "cuda"),
+                    config=config
                 )
                 all_results.append(results)
                 
@@ -156,13 +161,13 @@ def run_rope_analysis(config: Dict):
 
 
 def save_results(results: List[Dict], output_dir: str):
-    """Save evaluation results."""
+    """Save evaluation results with inputs and outputs."""
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    # Save detailed results
+    # Save detailed results with all data
     with open(output_path / f"results_{timestamp}.json", 'w') as f:
         json.dump(results, f, indent=2)
     
@@ -171,7 +176,25 @@ def save_results(results: List[Dict], output_dir: str):
     with open(output_path / f"summary_{timestamp}.json", 'w') as f:
         json.dump(summary, f, indent=2)
     
+    # Save inputs/outputs for analysis
+    inputs_outputs = []
+    for result in results:
+        if "overall_accuracy" in result:  # This is an aggregated result
+            continue
+        inputs_outputs.append({
+            "rope_technique": result.get("rope_technique"),
+            "context_length": result.get("context_length"),
+            "model": result.get("model"),
+            "accuracy": result.get("overall_accuracy", 0),
+            "samples": result.get("total_samples", 0)
+        })
+    
+    if inputs_outputs:
+        with open(output_path / f"evaluation_log_{timestamp}.json", 'w') as f:
+            json.dump(inputs_outputs, f, indent=2)
+    
     print(f"\nResults saved to {output_path}")
+    print(f"  Files created: results_{timestamp}.json, summary_{timestamp}.json")
 
 
 def create_summary(results: List[Dict]) -> Dict:

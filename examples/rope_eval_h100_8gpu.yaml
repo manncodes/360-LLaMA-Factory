@@ -87,9 +87,36 @@ optimizations:
   tensor_parallel_size: 1  # Sequence parallel handles distribution
   precision: "bf16"
   
-# Evaluation specific settings
+# Generation and sampling settings
+generation_config:
+  # Temperature settings
+  temperature: 0.0        # 0.0 = deterministic, 0.1-2.0 = creative sampling
+  do_sample: false        # Enable sampling (set to true with temperature > 0)
+  
+  # Sampling techniques
+  top_p: 0.9             # Nucleus sampling (0.1-1.0)
+  top_k: 50              # Top-k sampling (1-100)
+  repetition_penalty: 1.0 # Reduce repetition (1.0-1.5)
+  
+  # Length control
+  max_new_tokens: 50     # Maximum response length
+  min_new_tokens: 1      # Minimum response length
+  
+  # Special tokens
+  pad_token_id: null     # Auto-detected
+  eos_token_id: null     # Auto-detected
+  
+  # Advanced sampling
+  typical_p: 1.0         # Typical sampling (0.1-1.0, disabled at 1.0)
+  epsilon_cutoff: 0.0    # Epsilon cutoff sampling
+  eta_cutoff: 0.0        # Eta cutoff sampling
+  
+  # Beam search (alternative to sampling)
+  num_beams: 1           # 1 = no beam search, >1 = beam search
+  early_stopping: false  # Stop when all beams finish
+  
+# Evaluation specific settings  
 eval_settings:
-  deterministic: true  # Reproducible results
-  temperature: 0.0     # Deterministic generation
-  max_new_tokens: 50   # Sufficient for needle retrieval
-  use_cache: true
+  deterministic: true    # Reproducible results (overrides sampling if true)
+  use_cache: true       # Enable KV cache for efficiency
+  batch_size: 1         # Batch size for generation
