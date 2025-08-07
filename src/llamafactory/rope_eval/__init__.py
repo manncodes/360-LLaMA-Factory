@@ -1,5 +1,5 @@
 from .needle_eval import NeedleInHaystackEvaluator, NeedleConfig
-from .rope_config import RoPEConfig, RoPEManager
+from .rope_config import RoPEConfig, RoPEManager, SequenceParallelConfig
 from .model_loader import ModelLoader
 
 __all__ = [
@@ -7,5 +7,6 @@ __all__ = [
     "NeedleConfig",
     "RoPEConfig", 
     "RoPEManager",
+    "SequenceParallelConfig",
     "ModelLoader"
 ]

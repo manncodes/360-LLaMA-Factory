@@ -5,6 +5,18 @@ from typing import Dict, Optional, List, Any
 from dataclasses import dataclass, field
 
 
+@dataclass 
+class SequenceParallelConfig:
+    """Configuration for sequence parallelism."""
+    
+    sequence_parallel_size: int = 1
+    sequence_parallel_mode: str = "zigzag-ring"  # zigzag-ring, ulysses, llama3
+    flash_attn: str = "fa2"
+    gradient_checkpointing: bool = True
+    bf16: bool = True
+    deepspeed: Optional[str] = None
+
+
 @dataclass
 class RoPEConfig:
     """Configuration for RoPE scaling."""
@@ -28,6 +40,9 @@ class RoPEConfig:
     
     # RoPE theta (base frequency)
     rope_theta: Optional[float] = None
+    
+    # Sequence parallelism integration
+    sequence_parallel: Optional[SequenceParallelConfig] = None
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to HuggingFace compatible dictionary."""
@@ -75,20 +90,23 @@ class RoPEManager:
     def __init__(self, base_context_length: int = 4096):
         self.base_context_length = base_context_length
         
-    def create_config(self, technique: str, target_context: int) -> Optional[RoPEConfig]:
+    def create_config(self, technique: str, target_context: int, sequence_parallel: Optional[SequenceParallelConfig] = None) -> Optional[RoPEConfig]:
         """Create RoPE configuration for a specific technique and context length."""
         
         if technique == "baseline":
-            return None  # No RoPE scaling
+            # Still return config for sequence parallel support
+            if sequence_parallel:
+                return RoPEConfig(sequence_parallel=sequence_parallel)
+            return None
             
         # Calculate scaling factor
         factor = math.ceil(target_context / self.base_context_length)
         
         if technique == "linear":
-            return RoPEConfig(rope_type="linear", factor=factor)
+            return RoPEConfig(rope_type="linear", factor=factor, sequence_parallel=sequence_parallel)
             
         elif technique == "dynamic":
-            return RoPEConfig(rope_type="dynamic", factor=factor)
+            return RoPEConfig(rope_type="dynamic", factor=factor, sequence_parallel=sequence_parallel)
             
         elif technique == "yarn":
             return RoPEConfig(
@@ -97,7 +115,8 @@ class RoPEManager:
                 original_max_position_embeddings=self.base_context_length,
                 attention_factor=1.0,
                 beta_fast=32,
-                beta_slow=1
+                beta_slow=1,
+                sequence_parallel=sequence_parallel
             )
             
         elif technique == "longrope":
@@ -107,7 +126,8 @@ class RoPEManager:
                 factor=factor,
                 original_max_position_embeddings=self.base_context_length,
                 short_factor=[1.0] * 32,
-                long_factor=[1.0] * 32
+                long_factor=[1.0] * 32,
+                sequence_parallel=sequence_parallel
             )
             
         elif technique == "llama3":
@@ -116,7 +136,8 @@ class RoPEManager:
                 factor=factor,
                 original_max_position_embeddings=self.base_context_length,
                 low_freq_factor=1.0,
-                high_freq_factor=4.0
+                high_freq_factor=4.0,
+                sequence_parallel=sequence_parallel
             )
             
         else:

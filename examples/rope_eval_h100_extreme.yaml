@@ -1,0 +1,101 @@
+# RoPE Needle-in-Haystack Evaluation - EXTREME Configuration
+# Push the absolute limits of 8x H100 GPUs with largest models and contexts
+
+# Model configuration - Largest available models
+model_name: "meta-llama/Llama-2-70b-hf"  # 70B parameter model
+# Alternative options:
+# model_name: "mistralai/Mixtral-8x7B-v0.1"  # MoE model
+# model_name: "01-ai/Yi-34B"  # Alternative large model
+
+# RoPE techniques - All available
+rope_techniques:
+  - baseline
+  - linear
+  - dynamic
+  - yarn
+  - longrope
+
+# Extreme context lengths - Testing absolute limits
+context_lengths:
+  - 32768    # 32k  - Starting point
+  - 65536    # 64k  - Standard long
+  - 131072   # 128k - Very long
+  - 262144   # 256k - Extreme
+  - 524288   # 512k - Near memory limits
+  - 1048576  # 1M   - Absolute maximum (experimental)
+
+# Base context length
+base_context_length: 4096
+
+# Maximum Sequence Parallelism (8x H100)
+sequence_parallel_config:
+  sequence_parallel_size: 8  # All GPUs
+  sequence_parallel_mode: "zigzag-ring"
+  flash_attn: "fa2"
+  gradient_checkpointing: true
+  bf16: true  # Essential for memory efficiency
+  deepspeed: "examples/deepspeed/ds_z3_offload_config.json"  # Maximum offloading
+
+# Needle configuration
+needle_text: "The extreme context benchmark validation code is: H100_EXTREME_LIMIT_BREAKER_2024"
+retrieval_question: "What is the extreme context benchmark validation code?"
+
+# Minimal depth evaluation (due to extreme contexts)
+depth_percents:
+  - 0.1   # Beginning
+  - 0.5   # Middle  
+  - 0.9   # End
+
+# Single sample due to computational cost
+samples_per_needle: 1
+
+# Dataset source
+haystack_source: "paulgraham"
+
+# Extreme performance optimizations
+batch_size: 1  # Must be 1 for extreme contexts
+max_memory_per_gpu: "79GB"  # Use almost all H100 memory
+cpu_count: 128  # High-end server
+pin_memory: true
+dataloader_num_workers: 8
+
+# Memory management
+memory_optimizations:
+  offload_optimizer: true
+  offload_params: true  
+  cpu_offload: true
+  nvme_offload: false  # Disable if no NVMe
+  zero_stage: 3
+  activation_checkpointing: true
+
+# Extreme RoPE configurations
+extreme_rope_configs:
+  max_scaling_factor: 256  # For 1M contexts
+  adaptive_scaling: true
+  theta_adjustment: true
+
+# Timeout settings (extreme contexts take time)
+timeout_settings:
+  model_loading_timeout: 1800  # 30 minutes
+  evaluation_timeout: 7200     # 2 hours per context
+  total_timeout: 86400         # 24 hours total
+
+# Output configuration
+output_dir: "./h100_extreme_results"
+save_memory_stats: true
+save_timing_info: true
+checkpoint_frequency: 1  # Save after each context length
+
+# Monitoring
+monitoring:
+  gpu_utilization: true
+  memory_usage: true
+  temperature_monitoring: true
+  power_consumption: true
+
+# Safety settings
+safety:
+  memory_threshold: 0.95  # Stop if memory usage > 95%
+  temperature_threshold: 85  # Stop if GPU temp > 85°C
+  auto_recovery: true
+  save_on_failure: true

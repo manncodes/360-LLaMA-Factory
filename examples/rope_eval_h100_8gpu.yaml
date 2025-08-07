@@ -1,0 +1,95 @@
+# RoPE Needle-in-Haystack Evaluation - Optimized for 8x H100 GPUs
+# Maximum performance configuration for long-context evaluation
+
+# Model configuration
+model_name: "meta-llama/Llama-2-70b-hf"  # Large model to utilize full H100 capacity
+
+# RoPE techniques to evaluate (comprehensive analysis)
+rope_techniques:
+  - baseline
+  - linear
+  - dynamic
+  - yarn
+  - longrope
+  # - llama3  # Enable for Llama-3 models
+
+# Context lengths - exploit H100 memory capacity
+context_lengths:
+  - 8192    # 8k baseline
+  - 16384   # 16k
+  - 32768   # 32k
+  - 65536   # 64k
+  - 131072  # 128k
+  - 262144  # 256k - Pushing limits
+  # - 524288  # 512k - Experimental (may need adjustment)
+
+# Base context length (original training context)
+base_context_length: 4096
+
+# Sequence Parallelism Configuration (8x H100 optimized)
+sequence_parallel_config:
+  sequence_parallel_size: 8  # Use all 8 GPUs for sequence processing
+  sequence_parallel_mode: "zigzag-ring"  # Best for ring topology
+  flash_attn: "fa2"
+  gradient_checkpointing: true
+  bf16: true
+  deepspeed: "examples/deepspeed/ds_z3_offload_config.json"
+
+# Needle configuration
+needle_text: "The H100 benchmark validation code is: ULTRA_PERFORMANCE_2024_H100"
+retrieval_question: "What is the H100 benchmark validation code?"
+
+# Comprehensive depth evaluation
+depth_percents:
+  - 0.0   # Very beginning
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5   # Middle
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 1.0   # Very end
+
+# Multiple samples for statistical significance
+samples_per_needle: 5
+
+# Dataset source
+haystack_source: "paulgraham"
+
+# Performance optimizations
+batch_size: 1  # Large contexts require small batches
+max_memory_per_gpu: "78GB"  # H100 has 80GB, leave 2GB buffer
+cpu_count: 96  # High-end server CPU count
+
+# Output configuration
+output_dir: "./h100_8gpu_results"
+save_detailed_results: true
+generate_performance_plots: true
+
+# Advanced RoPE theta values to test
+rope_theta_analysis:
+  enabled: true
+  base_values:
+    - 10000.0     # Original
+    - 50000.0     # Extended
+    - 500000.0    # Llama-3 default
+    - 1000000.0   # CodeLlama
+    - 16000000.0  # Very extended context
+
+# Memory and compute optimizations
+optimizations:
+  use_triton: true
+  use_flash_attention_2: true
+  compilation_mode: "max-autotune"  # Maximum optimization
+  tensor_parallel_size: 1  # Sequence parallel handles distribution
+  precision: "bf16"
+  
+# Evaluation specific settings
+eval_settings:
+  deterministic: true  # Reproducible results
+  temperature: 0.0     # Deterministic generation
+  max_new_tokens: 50   # Sufficient for needle retrieval
+  use_cache: true

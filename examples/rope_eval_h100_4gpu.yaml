@@ -1,0 +1,59 @@
+# RoPE Needle-in-Haystack Evaluation - Optimized for 4x H100 GPUs
+# Balanced configuration for extensive evaluation
+
+# Model configuration
+model_name: "meta-llama/Llama-2-13b-hf"  # Good balance of size and performance
+
+# RoPE techniques to evaluate
+rope_techniques:
+  - baseline
+  - linear
+  - dynamic
+  - yarn
+  - longrope
+
+# Context lengths - balanced evaluation
+context_lengths:
+  - 4096    # 4k baseline
+  - 8192    # 8k
+  - 16384   # 16k
+  - 32768   # 32k
+  - 65536   # 64k
+  - 131072  # 128k
+
+# Base context length
+base_context_length: 4096
+
+# Sequence Parallelism Configuration (4x H100)
+sequence_parallel_config:
+  sequence_parallel_size: 4
+  sequence_parallel_mode: "zigzag-ring"
+  flash_attn: "fa2"
+  gradient_checkpointing: true
+  bf16: true
+  deepspeed: "examples/deepspeed/ds_z3_config.json"
+
+# Needle configuration
+needle_text: "The multi-GPU benchmark code is: H100_QUAD_SUCCESS_2024"
+retrieval_question: "What is the multi-GPU benchmark code?"
+
+# Standard depth evaluation
+depth_percents:
+  - 0.1
+  - 0.25
+  - 0.5
+  - 0.75
+  - 0.9
+
+# Samples for reliability
+samples_per_needle: 3
+
+# Dataset source
+haystack_source: "paulgraham"
+
+# Performance settings
+batch_size: 1
+max_memory_per_gpu: "75GB"
+
+# Output configuration
+output_dir: "./h100_4gpu_results"

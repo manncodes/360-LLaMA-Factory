@@ -16,6 +16,7 @@ from src.llamafactory.rope_eval import (
     NeedleConfig,
     RoPEConfig,
     RoPEManager,
+    SequenceParallelConfig,
     ModelLoader
 )
 
@@ -32,6 +33,7 @@ def run_single_evaluation(
     context_length: int,
     needle_config: NeedleConfig,
     rope_manager: RoPEManager,
+    sequence_parallel: Optional[SequenceParallelConfig] = None,
     device: str = "cuda"
 ) -> Dict:
     """Run a single evaluation with specific RoPE configuration."""
@@ -40,11 +42,15 @@ def run_single_evaluation(
     print(f"Evaluating: {rope_technique} @ {context_length} tokens")
     print(f"{'='*60}")
     
-    # Create RoPE configuration
-    rope_config = None
-    if rope_technique != "baseline":
-        rope_config = rope_manager.create_config(rope_technique, context_length)
-        print(f"RoPE Config: {rope_config.to_dict() if rope_config else 'None'}")
+    # Create RoPE configuration with sequence parallelism
+    rope_config = rope_manager.create_config(rope_technique, context_length, sequence_parallel)
+    
+    if rope_config:
+        print(f"RoPE Config: {rope_config.to_dict()}")
+        if rope_config.sequence_parallel:
+            print(f"Sequence Parallel: {rope_config.sequence_parallel.sequence_parallel_size} GPUs, {rope_config.sequence_parallel.sequence_parallel_mode} mode")
+    else:
+        print("RoPE Config: None (baseline)")
     
     # Load model with RoPE configuration
     print(f"Loading model: {model_name}")
@@ -83,6 +89,20 @@ def run_rope_analysis(config: Dict):
     context_lengths = config.get("context_lengths", [2048, 4096, 8192])
     base_context = config.get("base_context_length", 4096)
     
+    # Parse sequence parallelism configuration
+    sequence_parallel = None
+    sp_config = config.get("sequence_parallel_config")
+    if sp_config:
+        sequence_parallel = SequenceParallelConfig(
+            sequence_parallel_size=sp_config.get("sequence_parallel_size", 1),
+            sequence_parallel_mode=sp_config.get("sequence_parallel_mode", "zigzag-ring"),
+            flash_attn=sp_config.get("flash_attn", "fa2"),
+            gradient_checkpointing=sp_config.get("gradient_checkpointing", True),
+            bf16=sp_config.get("bf16", True),
+            deepspeed=sp_config.get("deepspeed")
+        )
+        print(f"Sequence Parallelism: {sequence_parallel.sequence_parallel_size} GPUs, {sequence_parallel.sequence_parallel_mode} mode")
+    
     # Create needle configuration
     needle_config = NeedleConfig(
         needle_text=config.get("needle_text", "The secret key is: BENCHMARK_SUCCESS_42"),
@@ -117,6 +137,7 @@ def run_rope_analysis(config: Dict):
                     context_length,
                     needle_config,
                     rope_manager,
+                    sequence_parallel=sequence_parallel,
                     device=config.get("device", "cuda")
                 )
                 all_results.append(results)
@@ -252,6 +273,19 @@ def main():
         default="./rope_results",
         help="Output directory for results"
     )
+    parser.add_argument(
+        "--sequence-parallel-size",
+        type=int,
+        default=1,
+        help="Number of GPUs for sequence parallelism (1-8)"
+    )
+    parser.add_argument(
+        "--sequence-parallel-mode",
+        type=str,
+        default="zigzag-ring",
+        choices=["zigzag-ring", "ulysses", "llama3"],
+        help="Sequence parallelism mode"
+    )
     
     args = parser.parse_args()
     
@@ -279,6 +313,17 @@ def main():
         config["context_lengths"] = args.contexts
     config["device"] = args.device
     config["output_dir"] = args.output_dir
+    
+    # Add sequence parallelism from command line
+    if args.sequence_parallel_size > 1 or "sequence_parallel_config" not in config:
+        config["sequence_parallel_config"] = {
+            "sequence_parallel_size": args.sequence_parallel_size,
+            "sequence_parallel_mode": args.sequence_parallel_mode,
+            "flash_attn": "fa2",
+            "gradient_checkpointing": True,
+            "bf16": True,
+            "deepspeed": "examples/deepspeed/ds_z3_offload_config.json" if args.sequence_parallel_size > 2 else None
+        }
     
     print("Configuration:")
     print(json.dumps(config, indent=2))
