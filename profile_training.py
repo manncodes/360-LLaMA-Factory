@@ -40,7 +40,10 @@ def profile_training(config_file: str, output_dir: str = "traces", wait_steps: i
     
     # Parse training arguments from YAML
     try:
-        model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(config_file)
+        original_argv = sys.argv
+        sys.argv = ["profile_training.py", config_file]  # Set argv for parser
+        model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(None)
+        sys.argv = original_argv  # Restore original argv
     except Exception as e:
         print(f"Error parsing config file: {e}")
         return

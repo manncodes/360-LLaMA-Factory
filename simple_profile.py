@@ -41,8 +41,11 @@ def simple_profile_training(config_file: str, output_dir: str = "simple_traces",
     print(f"Simple profiling with config: {config_file}")
     print(f"Schedule: wait={wait_steps}, warmup={warmup_steps}, active={active_steps}, total={total_steps}")
     
-    # Load config
-    model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(config_file)
+    # Load config - save original argv and restore after
+    original_argv = sys.argv
+    sys.argv = ["simple_profile.py", config_file]  # Set argv for parser
+    model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(None)
+    sys.argv = original_argv  # Restore original argv
     
     # Load components
     print("Loading model components...")
