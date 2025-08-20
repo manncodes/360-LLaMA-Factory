@@ -172,6 +172,10 @@ def run_eval() -> None:
     elif eval_args.task.startswith("longbench"):
         from .longbench_evaluator import run_longbench_eval
         run_longbench_eval()
+    elif eval_args.task == "ruler" or eval_args.task.startswith("ruler_"):
+        # RULER evaluation for comprehensive long-context assessment
+        from .ruler_evaluator import run_ruler_eval
+        run_ruler_eval()
     else:
         # Use standard evaluator for other tasks
         Evaluator().eval()

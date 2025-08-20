@@ -175,6 +175,51 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "LongBench evaluation mode: 'direct', 'vllm', 'official' (default: auto-detect)"},
     )
+    # RULER evaluation parameters
+    ruler_tasks: Optional[List[str]] = field(
+        default=None,
+        metadata={"help": "RULER tasks to evaluate (e.g., ['niah_single_1', 'niah_multikey_1', 'vt', 'cwe'])"},
+    )
+    ruler_context_lengths: Optional[List[int]] = field(
+        default=None,
+        metadata={"help": "Context lengths for RULER evaluation (e.g., [4096, 8192, 16384, 32768])"},
+    )
+    ruler_num_samples: int = field(
+        default=10,
+        metadata={"help": "Number of samples per RULER task"},
+    )
+    ruler_subset: str = field(
+        default="validation",
+        metadata={"help": "RULER subset to evaluate: 'validation' or 'test'"},
+    )
+    ruler_max_new_tokens: int = field(
+        default=50,
+        metadata={"help": "Maximum new tokens for RULER generation"},
+    )
+    ruler_batch_size: int = field(
+        default=1,
+        metadata={"help": "Batch size for RULER evaluation"},
+    )
+    ruler_save_predictions: bool = field(
+        default=True,
+        metadata={"help": "Save RULER predictions to file"},
+    )
+    output_dir: Optional[str] = field(
+        default=None,
+        metadata={"help": "Output directory for evaluation results"},
+    )
+    max_length: Optional[int] = field(
+        default=None,
+        metadata={"help": "Maximum sequence length for evaluation"},
+    )
+    temperature: Optional[float] = field(
+        default=None,
+        metadata={"help": "Temperature for generation"},
+    )
+    top_p: Optional[float] = field(
+        default=None,
+        metadata={"help": "Top-p for generation"},
+    )
 
     def __post_init__(self):
         if self.save_dir is not None and os.path.exists(self.save_dir):

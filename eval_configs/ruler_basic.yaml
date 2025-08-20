@@ -1,0 +1,26 @@
+# Basic RULER evaluation configuration
+# Test needle-in-haystack retrieval at 4K context
+
+### model
+model_name_or_path: meta-llama/Llama-2-7b-hf
+
+### evaluation
+task: ruler
+ruler_tasks:
+  - niah_single_1  # Single needle retrieval with noise haystack
+ruler_context_lengths:
+  - 4096
+ruler_num_samples: 10
+ruler_subset: validation
+ruler_max_new_tokens: 50
+ruler_batch_size: 1
+ruler_save_predictions: true
+output_dir: ./ruler_results/basic
+
+### generation
+temperature: 0.0
+top_p: 1.0
+do_sample: false
+
+### device
+device_map: auto

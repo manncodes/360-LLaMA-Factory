@@ -1,0 +1,26 @@
+# Quick RULER test configuration
+# Minimal setup for testing the integration
+
+### model
+model_name_or_path: meta-llama/Llama-2-7b-hf
+
+### evaluation
+task: ruler
+ruler_tasks:
+  - niah_single_1  # Just one simple task
+ruler_context_lengths:
+  - 2048  # Short context for quick testing
+ruler_num_samples: 2  # Very few samples for quick test
+ruler_subset: validation
+ruler_max_new_tokens: 20
+ruler_batch_size: 1
+ruler_save_predictions: true
+output_dir: ./ruler_results/test
+
+### generation
+temperature: 0.0
+top_p: 1.0
+do_sample: false
+
+### device
+device_map: auto

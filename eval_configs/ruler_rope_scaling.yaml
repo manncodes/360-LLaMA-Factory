@@ -1,0 +1,40 @@
+# RULER evaluation with RoPE scaling
+# Test long-context performance with different RoPE scaling methods
+
+### model
+model_name_or_path: meta-llama/Llama-2-7b-hf
+
+### evaluation
+task: ruler
+ruler_tasks:
+  - niah_single_1
+  - niah_single_2
+  - niah_multikey_1
+  - vt
+  - cwe
+ruler_context_lengths:
+  - 8192
+  - 16384
+  - 32768
+  - 65536
+ruler_num_samples: 20
+ruler_subset: validation
+ruler_max_new_tokens: 50
+ruler_batch_size: 1
+ruler_save_predictions: true
+output_dir: ./ruler_results/rope_scaling
+
+### RoPE scaling configuration
+rope_scaling_type: linear
+rope_scaling_factor: 8.0
+max_length: 65536
+
+### generation
+temperature: 0.0
+top_p: 1.0
+do_sample: false
+
+### device
+device_map: auto
+quantization_bit: 4
+load_in_4bit: true

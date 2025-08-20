@@ -1,0 +1,40 @@
+# Comprehensive RULER evaluation configuration
+# Test multiple tasks across various context lengths
+
+### model
+model_name_or_path: meta-llama/Llama-2-7b-hf
+
+### evaluation
+task: ruler
+ruler_tasks:
+  - niah_single_1      # Single needle with noise haystack
+  - niah_single_2      # Single needle with essay haystack
+  - niah_single_3      # Single needle with UUID values
+  - niah_multikey_1    # Multiple keys retrieval
+  - niah_multivalue    # Multiple values retrieval
+  - niah_multiquery    # Multiple queries
+  - vt                 # Variable tracking
+  - cwe                # Common words extraction
+  - fwe                # Frequency words extraction
+  - qa_1               # QA with SQuAD
+  - qa_2               # QA with HotpotQA
+ruler_context_lengths:
+  - 4096
+  - 8192
+  - 16384
+  - 32768
+ruler_num_samples: 50
+ruler_subset: validation
+ruler_max_new_tokens: 100
+ruler_batch_size: 1
+ruler_save_predictions: true
+output_dir: ./ruler_results/comprehensive
+
+### generation
+temperature: 0.0
+top_p: 1.0
+do_sample: false
+
+### device
+device_map: auto
+quantization_bit: 4  # Use 4-bit quantization for longer contexts
