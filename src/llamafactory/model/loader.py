@@ -27,6 +27,7 @@ from .model_utils.mod import convert_pretrained_model_to_mod, load_mod_pretraine
 from .model_utils.sequence_parallel import apply_sequence_parallel
 from .model_utils.unsloth import load_unsloth_pretrained_model
 from .model_utils.valuehead import load_valuehead_params
+from .model_utils.custom_split_llama import load_custom_split_llama_model
 from .patcher import patch_config, patch_model, patch_processor, patch_tokenizer, patch_valuehead_model
 from ..extras.packages import is_transformers_version_greater_than
 
@@ -160,7 +161,9 @@ def load_model(
         if sequence_parallel_group is not None and is_transformers_version_greater_than("4.51.0"):
             init_kwargs["attn_implementation"] = "sequence_parallel_attention"
 
-        if model_args.mixture_of_depths == "load":
+        if model_args.use_custom_split_llama:
+            model = load_custom_split_llama_model(config, model_args)
+        elif model_args.mixture_of_depths == "load":
             model = load_mod_pretrained_model(**init_kwargs)
         else:
             if type(config) in AutoModelForVision2Seq._model_mapping.keys():  # assume built-in models

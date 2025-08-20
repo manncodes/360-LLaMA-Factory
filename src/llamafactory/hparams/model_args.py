@@ -311,6 +311,30 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
         init=False,
         metadata={"help": "Whether use block diag attention or not, derived from `neat_packing`. Do not specify it."},
     )
+    use_custom_split_llama: bool = field(
+        default=False,
+        metadata={"help": "Whether to use CustomSplitLLamaModel architecture (LLaMA Pro-like)."},
+    )
+    path8b: Optional[str] = field(
+        default=None,
+        metadata={"help": "Path to the 8B model for CustomSplitLLamaModel."},
+    )
+    path70b: Optional[str] = field(
+        default=None,
+        metadata={"help": "Path to the 70B model for CustomSplitLLamaModel."},
+    )
+    num_layers_8: Optional[int] = field(
+        default=16,
+        metadata={"help": "Number of layers to use from the 8B model in CustomSplitLLamaModel."},
+    )
+    num_layers_70: Optional[int] = field(
+        default=16,
+        metadata={"help": "Number of layers to use from the 70B model in CustomSplitLLamaModel."},
+    )
+    use_mlp_adapter: bool = field(
+        default=False,
+        metadata={"help": "Whether to use MLP adapter (instead of linear) in CustomSplitLLamaModel."},
+    )
 
     def __post_init__(self):
         if self.model_name_or_path is None:
@@ -330,6 +354,10 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
 
         if isinstance(self.vllm_config, str) and self.vllm_config.startswith("{"):
             self.vllm_config = _convert_str_dict(json.loads(self.vllm_config))
+
+        if self.use_custom_split_llama:
+            if self.path8b is None or self.path70b is None:
+                raise ValueError("CustomSplitLLamaModel requires both `path8b` and `path70b` to be specified.")
 
     @classmethod
     def copyfrom(cls, source: "Self", **kwargs) -> "Self":
