@@ -1,0 +1,23 @@
+{
+  "total_configs": 2,
+  "best_config": {
+    "config_file": "integration_test/quick_rope_test.yaml",
+    "rope_type": "linear",
+    "rope_factor": 2.0,
+    "context_length": 1024,
+    "perplexity": 1.970298483459416,
+    "long_ppl": 2.364358180151299,
+    "loss": 0.6781850457191467,
+    "memory_gb": 0.573093888,
+    "throughput_tps": 22.468920588605634
+  },
+  "rope_types": [
+    "linear",
+    "baseline"
+  ],
+  "perplexity_stats": {
+    "min": 1.970298483459416,
+    "max": 1.970298483459416,
+    "mean": 1.970298483459416
+  }
+}

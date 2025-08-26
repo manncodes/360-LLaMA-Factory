@@ -1,0 +1,15 @@
+batch_size: 1
+cutoff_len: 16384
+infer_dtype: bfloat16
+low_cpu_mem_usage: true
+max_samples: 1000
+model_name_or_path: gpt2
+rope_scaling_factor: 2
+rope_scaling_type: yarn
+save_dir: results/
+seed: 42
+task: perplexity
+trust_remote_code: true
+use_cache: true
+yarn_alpha: 2.0
+yarn_beta: 16.0

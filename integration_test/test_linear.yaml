@@ -1,0 +1,15 @@
+# Linear RoPE scaling configuration for integration test
+model_name_or_path: gpt2
+cutoff_len: 2048  # 2x original context
+max_samples: 10   # Very small for quick test
+rope_scaling_type: linear
+rope_scaling_factor: 2.0
+infer_dtype: bfloat16
+use_cache: true
+low_cpu_mem_usage: true
+batch_size: 1
+seed: 42
+task: perplexity
+save_dir: integration_test/results
+experiment_id: test_linear
+timestamp: "2025-08-26T00:00:00"

@@ -1,0 +1,13 @@
+# Baseline configuration for integration test
+model_name_or_path: gpt2
+cutoff_len: 1024
+max_samples: 10  # Very small for quick test
+infer_dtype: bfloat16
+use_cache: true
+low_cpu_mem_usage: true
+batch_size: 1
+seed: 42
+task: perplexity
+save_dir: integration_test/results
+experiment_id: test_baseline
+timestamp: "2025-08-26T00:00:00"

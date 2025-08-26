@@ -1,0 +1,30 @@
+{
+  "config_path": "comprehensive_sweep/focused/baseline_short_92965a37.yaml",
+  "config": {
+    "batch_size": 1,
+    "cutoff_len": 4096,
+    "infer_dtype": "bfloat16",
+    "low_cpu_mem_usage": true,
+    "max_samples": 1000,
+    "model_name_or_path": "gpt2",
+    "save_dir": "results/",
+    "seed": 42,
+    "task": "perplexity",
+    "trust_remote_code": true,
+    "use_cache": true
+  },
+  "metrics": {
+    "perplexity": 1.3305531563535595,
+    "long_ppl": 1.4636084719889155,
+    "loss": 0.2845843782027562,
+    "tokens_processed": 713,
+    "context_length": 4096,
+    "memory_gb": 0.742078976,
+    "throughput_tps": 5095.623338383694
+  },
+  "runtime": {
+    "elapsed_seconds": 0.139924,
+    "timestamp": "2025-08-26T18:05:25.994074"
+  },
+  "status": "success"
+}

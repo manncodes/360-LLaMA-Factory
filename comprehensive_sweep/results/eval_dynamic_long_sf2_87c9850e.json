@@ -1,0 +1,32 @@
+{
+  "config_path": "comprehensive_sweep/focused/dynamic_long_sf2_87c9850e.yaml",
+  "config": {
+    "batch_size": 1,
+    "cutoff_len": 16384,
+    "infer_dtype": "bfloat16",
+    "low_cpu_mem_usage": true,
+    "max_samples": 1000,
+    "model_name_or_path": "gpt2",
+    "rope_scaling_factor": 2,
+    "rope_scaling_type": "dynamic",
+    "save_dir": "results/",
+    "seed": 42,
+    "task": "perplexity",
+    "trust_remote_code": true,
+    "use_cache": true
+  },
+  "metrics": {
+    "perplexity": 1.3305531563535595,
+    "long_ppl": 1.4636084719889155,
+    "loss": 0.2845843782027562,
+    "tokens_processed": 713,
+    "context_length": 16384,
+    "memory_gb": 1.030815744,
+    "throughput_tps": 432.2299244961611
+  },
+  "runtime": {
+    "elapsed_seconds": 1.649585,
+    "timestamp": "2025-08-26T18:05:27.668662"
+  },
+  "status": "success"
+}

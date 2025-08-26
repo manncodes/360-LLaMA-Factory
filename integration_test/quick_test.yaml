@@ -1,0 +1,13 @@
+# Ultra-minimal configuration for integration test
+model_name_or_path: gpt2
+cutoff_len: 512
+max_samples: 3  # Ultra-small for quick test
+infer_dtype: float32  # Use float32 to avoid bfloat16 issues
+use_cache: true
+low_cpu_mem_usage: true
+batch_size: 1
+seed: 42
+task: perplexity
+save_dir: integration_test/results
+experiment_id: quick_test
+timestamp: "2025-08-26T00:00:00"

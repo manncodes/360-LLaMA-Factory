@@ -1,0 +1,17 @@
+batch_size: 1
+cutoff_len: 8192
+experiment_id: 4ada2cb7
+infer_dtype: bfloat16
+low_cpu_mem_usage: true
+max_samples: 1000
+model_name_or_path: gpt2
+rope_scaling_factor: 8
+rope_scaling_type: yarn
+save_dir: results/gpt2/yarn/8192/4ada2cb7
+seed: 42
+task: perplexity
+timestamp: '2025-08-26T18:03:45.047200'
+trust_remote_code: true
+use_cache: true
+yarn_alpha: 2.0
+yarn_beta: 8.0

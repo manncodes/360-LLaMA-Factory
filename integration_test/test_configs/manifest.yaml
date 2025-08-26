@@ -1,0 +1,53 @@
+configs:
+- context: 4096
+  file: baseline_short_92965a37.yaml
+  id: 92965a37
+  model: gpt2
+  type: baseline
+- context: 4096
+  file: linear_short_sf2_0d37097d.yaml
+  id: 0d37097d
+  model: gpt2
+  rope_config:
+    rope_scaling_factor: 2
+    rope_scaling_type: linear
+  type: linear
+- context: 4096
+  file: linear_short_sf4_bb29e406.yaml
+  id: bb29e406
+  model: gpt2
+  rope_config:
+    rope_scaling_factor: 4
+    rope_scaling_type: linear
+  type: linear
+- context: 4096
+  file: linear_short_sf8_421b759c.yaml
+  id: 421b759c
+  model: gpt2
+  rope_config:
+    rope_scaling_factor: 8
+    rope_scaling_type: linear
+  type: linear
+- context: 4096
+  file: linear_short_sf16_bb64b1d7.yaml
+  id: bb64b1d7
+  model: gpt2
+  rope_config:
+    rope_scaling_factor: 16
+    rope_scaling_type: linear
+  type: linear
+- context: 4096
+  file: linear_short_sf32_a1adfc6f.yaml
+  id: a1adfc6f
+  model: gpt2
+  rope_config:
+    rope_scaling_factor: 32
+    rope_scaling_type: linear
+  type: linear
+context_lengths:
+  short: 4096
+model: gpt2
+rope_types:
+- linear
+timestamp: '2025-08-26T17:49:59.870784'
+total_configs: 6

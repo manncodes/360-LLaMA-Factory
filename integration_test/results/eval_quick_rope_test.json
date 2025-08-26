@@ -1,0 +1,33 @@
+{
+  "config_path": "integration_test/quick_rope_test.yaml",
+  "config": {
+    "model_name_or_path": "gpt2",
+    "cutoff_len": 1024,
+    "max_samples": 3,
+    "rope_scaling_type": "linear",
+    "rope_scaling_factor": 2.0,
+    "infer_dtype": "float32",
+    "use_cache": true,
+    "low_cpu_mem_usage": true,
+    "batch_size": 1,
+    "seed": 42,
+    "task": "perplexity",
+    "save_dir": "integration_test/results",
+    "experiment_id": "quick_rope_test",
+    "timestamp": "2025-08-26T00:00:00"
+  },
+  "metrics": {
+    "perplexity": 1.970298483459416,
+    "long_ppl": 2.364358180151299,
+    "loss": 0.6781850457191467,
+    "tokens_processed": 101,
+    "context_length": 1024,
+    "memory_gb": 0.573093888,
+    "throughput_tps": 22.468920588605634
+  },
+  "runtime": {
+    "elapsed_seconds": 4.495098,
+    "timestamp": "2025-08-26T17:48:49.043361"
+  },
+  "status": "success"
+}

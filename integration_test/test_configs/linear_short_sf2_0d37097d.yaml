@@ -1,0 +1,15 @@
+batch_size: 1
+cutoff_len: 4096
+experiment_id: 0d37097d
+infer_dtype: bfloat16
+low_cpu_mem_usage: true
+max_samples: 1000
+model_name_or_path: gpt2
+rope_scaling_factor: 2
+rope_scaling_type: linear
+save_dir: results/gpt2/linear/4096/0d37097d
+seed: 42
+task: perplexity
+timestamp: '2025-08-26T17:49:59.762176'
+trust_remote_code: true
+use_cache: true
