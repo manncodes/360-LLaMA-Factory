@@ -1,0 +1,42 @@
+### Test configuration for all RoPE parameters
+### This demonstrates all available rope parameters in YAML
+
+# Model Configuration
+model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
+template: llama3
+
+### RoPE Configuration - All Parameters
+# Note: rope_theta is not available in this branch (llamafactory-native-rope-eval)
+# It exists in llama-pro-integration branch
+rope_scaling_type: yarn      # Options: linear, dynamic, yarn, longrope, llama3
+rope_scaling_factor: 4.0     # Scaling factor for context extension
+yarn_alpha: 1.0              # YARN-specific alpha parameter
+yarn_beta: 32.0              # YARN-specific beta parameter
+
+### Inference Configuration
+infer_dtype: bfloat16
+use_cache: true
+low_cpu_mem_usage: true
+
+### Evaluation Task Configuration
+task: needle_haystack
+task_dir: evaluation
+save_dir: results/test_all_rope_params
+
+### Needle Haystack Test Parameters
+needle_context_lengths: [4000, 8000, 16000]
+needle_depth_percents: [25, 50, 75]
+needle_text: "Testing all RoPE parameters: YARN with alpha=1.0, beta=32.0, factor=4.0"
+needle_question: "What are we testing?"
+needle_haystack_data_source: paulgraham
+needle_save_inputs_outputs: true
+
+### Generation Configuration
+needle_generation_temperature: 0.0
+needle_generation_top_p: 1.0
+needle_generation_top_k: 1
+needle_generation_max_tokens: 50
+
+### Performance Settings
+batch_size: 1
+seed: 42
