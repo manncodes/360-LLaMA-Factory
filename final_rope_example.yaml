@@ -1,0 +1,43 @@
+# Final comprehensive RoPE example with rope_theta
+# Optimal configuration for long context training
+
+### Model arguments (for ModelArguments)
+model_name_or_path: unsloth/Llama-3.2-1B-Instruct
+rope_scaling: linear        # Linear RoPE scaling for stability  
+rope_theta: 1000000.0      # 1M theta for excellent long context (vs default 500k)
+
+### Data arguments (for DataArguments)
+dataset: alpaca_en_demo
+template: llama3
+cutoff_len: 8192           # 8K context to demonstrate scaling
+max_samples: 2
+overwrite_cache: true
+preprocessing_num_workers: 1
+
+### Training arguments (for TrainingArguments)
+stage: sft
+do_train: true
+finetuning_type: full
+output_dir: final_rope_output
+overwrite_output_dir: true
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 3.0e-5
+num_train_epochs: 0.01
+logging_steps: 1
+save_steps: 1
+save_total_limit: 1
+warmup_steps: 0
+optim: adamw_torch
+fp16: false
+bf16: true                # Essential for long context efficiency
+max_steps: 1
+
+### Generation arguments
+do_sample: true
+temperature: 0.8
+top_p: 0.9
+top_k: 40
+max_new_tokens: 32
+
+seed: 42

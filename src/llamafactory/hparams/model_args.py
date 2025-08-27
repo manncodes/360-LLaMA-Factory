@@ -205,6 +205,10 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
         default=None,
         metadata={"help": "Which scaling strategy should be adopted for the RoPE embeddings."},
     )
+    rope_theta: Optional[float] = field(
+        default=None,
+        metadata={"help": "RoPE theta frequency base for positional embeddings. Higher values improve long context."},
+    )
     flash_attn: Literal["auto", "disabled", "sdpa", "fa2"] = field(
         default="auto",
         metadata={"help": "Enable FlashAttention for faster training and inference."},

@@ -61,3 +61,11 @@ def configure_rope(config: "PretrainedConfig", model_args: "ModelArguments", is_
     logger.info_rank0(
         f"Using {model_args.rope_scaling} scaling strategy and setting scaling factor to {scaling_factor}"
     )
+    
+    # Apply rope_theta if specified
+    if model_args.rope_theta is not None:
+        if hasattr(config, "rope_theta"):
+            setattr(config, "rope_theta", model_args.rope_theta)
+            logger.info_rank0(f"Setting RoPE theta to {model_args.rope_theta}")
+        else:
+            logger.warning_rank0("Model does not support custom rope_theta parameter")
