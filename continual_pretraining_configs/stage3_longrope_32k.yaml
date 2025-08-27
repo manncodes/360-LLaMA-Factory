@@ -1,0 +1,62 @@
+# Stage 3: LongRoPE 16K -> 32K Context Extension  
+# Final stage using LongRoPE for extreme context extension
+
+# Model configuration (use output from Stage 2)
+model_name_or_path: continual_pt_stage2_16k
+template: llama3
+
+# Advanced RoPE scaling - switch to LongRoPE for extreme extension
+rope_scaling_type: longrope
+rope_scaling_factor: 8.0
+longrope_short_factor:
+  - 1.0
+  - 1.5
+  - 2.0
+longrope_long_factor:
+  - 1.0
+  - 2.0
+  - 4.0
+rope_theta: 2000000.0
+original_max_position: 4096
+
+# Training configuration
+stage: pt
+do_train: true
+dataset: long_context_corpus
+cutoff_len: 32768
+max_samples: 20000
+
+# Memory optimization for extreme context
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 128  # Large accumulation for 32K context
+gradient_checkpointing: true
+bf16: true
+dataloader_drop_last: true
+
+# Conservative learning schedule for final stage
+learning_rate: 1e-5
+num_train_epochs: 1.0
+warmup_steps: 1000
+lr_scheduler_type: cosine
+weight_decay: 0.01
+max_grad_norm: 0.5  # Lower for stability
+
+# Optimizer
+optim: adamw_torch
+
+# Logging and saving
+output_dir: continual_pt_stage3_32k
+overwrite_output_dir: true
+logging_steps: 50
+save_steps: 500
+save_total_limit: 3
+report_to: none
+
+# Evaluation during training
+eval_strategy: steps
+eval_steps: 250
+do_eval: true
+
+# Safety and debugging
+seed: 42
+remove_unused_columns: false

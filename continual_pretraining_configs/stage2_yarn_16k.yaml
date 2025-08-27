@@ -1,0 +1,56 @@
+# Stage 2: YaRN 8K -> 16K Context Extension
+# Progressive curriculum learning approach
+
+# Model configuration (use output from Stage 1)
+model_name_or_path: continual_pt_stage1_8k
+template: llama3
+
+# Advanced RoPE scaling - increased factor for 16K
+rope_scaling_type: yarn
+rope_scaling_factor: 4.0
+yarn_alpha: 1.0
+yarn_beta: 32.0
+rope_theta: 1000000.0
+original_max_position: 4096
+
+# Training configuration
+stage: pt
+do_train: true
+dataset: long_context_corpus
+cutoff_len: 16384
+max_samples: 10000
+
+# Memory optimization for longer context
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 64  # Increase for longer sequences
+gradient_checkpointing: true
+bf16: true
+dataloader_drop_last: true
+
+# Learning schedule - slightly reduced for stability
+learning_rate: 1.5e-5
+num_train_epochs: 0.5
+warmup_steps: 750
+lr_scheduler_type: cosine
+weight_decay: 0.01
+max_grad_norm: 1.0
+
+# Optimizer
+optim: adamw_torch
+
+# Logging and saving
+output_dir: continual_pt_stage2_16k
+overwrite_output_dir: true
+logging_steps: 100
+save_steps: 1000
+save_total_limit: 2
+report_to: none
+
+# Evaluation during training
+eval_strategy: steps
+eval_steps: 500
+do_eval: true
+
+# Safety and debugging
+seed: 42
+remove_unused_columns: false

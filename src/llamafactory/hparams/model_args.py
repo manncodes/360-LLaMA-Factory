@@ -17,7 +17,7 @@
 
 import json
 from dataclasses import dataclass, field, fields
-from typing import Any, Dict, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import torch
 from transformers.training_args import _convert_str_dict
@@ -203,11 +203,39 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
     )
     rope_scaling: Optional[Literal["linear", "dynamic"]] = field(
         default=None,
-        metadata={"help": "Which scaling strategy should be adopted for the RoPE embeddings."},
+        metadata={"help": "Legacy RoPE scaling strategy. Use rope_scaling_type for advanced options."},
+    )
+    rope_scaling_type: Optional[Literal["linear", "dynamic", "yarn", "longrope"]] = field(
+        default=None,
+        metadata={"help": "Advanced RoPE scaling type for continual pretraining: linear, dynamic, yarn, longrope"},
+    )
+    rope_scaling_factor: Optional[float] = field(
+        default=None,
+        metadata={"help": "RoPE scaling factor for context extension (e.g., 2.0 for 2x extension)"},
     )
     rope_theta: Optional[float] = field(
         default=None,
         metadata={"help": "RoPE theta frequency base for positional embeddings. Higher values improve long context."},
+    )
+    yarn_alpha: Optional[float] = field(
+        default=1.0,
+        metadata={"help": "YARN alpha parameter for attention scaling"},
+    )
+    yarn_beta: Optional[float] = field(
+        default=32.0,
+        metadata={"help": "YARN beta parameter for position interpolation"},
+    )
+    longrope_short_factor: Optional[List[float]] = field(
+        default=None,
+        metadata={"help": "LongRoPE short range factors for high-frequency components"},
+    )
+    longrope_long_factor: Optional[List[float]] = field(
+        default=None,
+        metadata={"help": "LongRoPE long range factors for low-frequency components"},
+    )
+    original_max_position: Optional[int] = field(
+        default=None,
+        metadata={"help": "Original max position embeddings before RoPE scaling"},
     )
     flash_attn: Literal["auto", "disabled", "sdpa", "fa2"] = field(
         default="auto",
@@ -334,6 +362,32 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
 
         if isinstance(self.vllm_config, str) and self.vllm_config.startswith("{"):
             self.vllm_config = _convert_str_dict(json.loads(self.vllm_config))
+
+        # RoPE scaling validation and backward compatibility
+        if self.rope_scaling is not None and self.rope_scaling_type is not None:
+            raise ValueError("Cannot specify both rope_scaling and rope_scaling_type. Use rope_scaling_type for advanced options.")
+        
+        # Handle backward compatibility
+        if self.rope_scaling is not None:
+            self.rope_scaling_type = self.rope_scaling
+            self.rope_scaling_factor = 2.0  # Default factor for legacy configs
+        
+        # Advanced RoPE validation
+        if self.rope_scaling_type == "yarn":
+            if self.rope_scaling_factor is None:
+                raise ValueError("rope_scaling_factor is required for YARN scaling")
+            if self.yarn_alpha is None:
+                self.yarn_alpha = 1.0
+            if self.yarn_beta is None:
+                self.yarn_beta = 32.0
+        
+        elif self.rope_scaling_type == "longrope":
+            if self.rope_scaling_factor is None:
+                raise ValueError("rope_scaling_factor is required for LongRoPE scaling")
+            if self.longrope_short_factor is None:
+                self.longrope_short_factor = [1.0, 1.5, 2.0]
+            if self.longrope_long_factor is None:
+                self.longrope_long_factor = [1.0, 2.0, 4.0]
 
     @classmethod
     def copyfrom(cls, source: "Self", **kwargs) -> "Self":
