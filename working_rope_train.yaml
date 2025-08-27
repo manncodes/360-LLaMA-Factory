@@ -1,0 +1,42 @@
+# Working YAML for llamafactory-cli training with RoPE scaling
+# Using LLaMA-based model that supports RoPE
+
+### Model arguments (for ModelArguments)
+model_name_or_path: TinyLlama/TinyLlama-1.1B-Chat-v1.0  # Small LLaMA model that supports RoPE
+rope_scaling: linear  # Only "linear" or "dynamic" supported in this branch
+
+### Data arguments (for DataArguments)
+dataset: alpaca_en_demo
+template: default
+cutoff_len: 4096  # Extended context length to trigger RoPE scaling
+max_samples: 5    # Very small for quick test
+overwrite_cache: true
+preprocessing_num_workers: 1
+
+### Training arguments (for TrainingArguments)
+stage: sft  # Supervised fine-tuning
+do_train: true
+finetuning_type: full
+output_dir: working_rope_output
+overwrite_output_dir: true
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 5.0e-5
+num_train_epochs: 0.01  # Very short for testing
+logging_steps: 1
+save_steps: 3
+save_total_limit: 1
+warmup_steps: 0
+optim: adamw_torch
+fp16: false
+bf16: false
+max_steps: 3  # Just 3 steps to test loading
+
+### Generation arguments (if needed)
+do_sample: true
+temperature: 0.95
+top_p: 0.7
+top_k: 50
+max_new_tokens: 128
+
+seed: 42
