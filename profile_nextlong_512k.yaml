@@ -1,0 +1,42 @@
+# Profiling configuration for NExtLong-512K dataset
+# This config is designed to test preprocessing bottlenecks with full cutoff
+
+# Model configuration
+model_name_or_path: meta-llama/Llama-2-7b-hf
+template: default
+
+# Training stage
+stage: pt
+do_train: true
+
+# Dataset configuration - NExtLong with 512K context
+dataset: caskcsg/NExtLong-512K-dataset
+dataset_dir: ./data
+cutoff_len: 524288  # Full 512K context length
+max_samples: 100  # Small sample for profiling
+overwrite_cache: true
+preprocessing_num_workers: 16  # Parallel preprocessing
+
+# Memory optimization
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+gradient_checkpointing: true
+bf16: true
+
+# Output configuration
+output_dir: ./profiling_results/nextlong_512k
+logging_steps: 1
+save_steps: 10
+overwrite_output_dir: true
+
+# Minimal training for profiling
+learning_rate: 1e-5
+num_train_epochs: 0.01  # Just enough to test preprocessing
+warmup_steps: 0
+
+# Disable packing for accurate profiling
+packing: false
+
+# Enable profiling metrics
+report_to: none
+logging_first_step: true

@@ -702,5 +702,35 @@
       "user_tag": "user",
       "assistant_tag": "assistant"
     }
+  },
+  "caskcsg/NExtLong-512K-dataset": {
+    "hf_hub_url": "caskcsg/NExtLong-512K-dataset",
+    "columns": {
+      "prompt": "text"
+    }
+  },
+  "nextlong_local": {
+    "file_name": "nextlong_dataset",
+    "columns": {
+      "prompt": "text"
+    }
+  },
+  "nextlong_local_json": {
+    "file_name": "nextlong_dataset.json",
+    "columns": {
+      "prompt": "text"
+    }
+  },
+  "nextlong_local_jsonl": {
+    "file_name": "nextlong_dataset.jsonl",
+    "columns": {
+      "prompt": "text"
+    }
+  },
+  "nextlong_local_parquet": {
+    "file_name": "nextlong_dataset.parquet",
+    "columns": {
+      "prompt": "text"
+    }
   }
 }
