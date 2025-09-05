@@ -201,9 +201,9 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
         default=True,
         metadata={"help": "Whether or not to use memory-efficient model loading."},
     )
-    rope_scaling: Optional[Literal["linear", "dynamic"]] = field(
+    rope_scaling: Optional[Any] = field(
         default=None,
-        metadata={"help": "Legacy RoPE scaling strategy. Use rope_scaling_type for advanced options."},
+        metadata={"help": "RoPE scaling configuration. Can be string (legacy) or dict (nested format)."},
     )
     rope_scaling_type: Optional[Literal["linear", "dynamic", "yarn", "longrope"]] = field(
         default=None,
@@ -367,10 +367,12 @@ class ModelArguments(QuantizationArguments, ProcessorArguments, ExportArguments,
         if self.rope_scaling is not None and self.rope_scaling_type is not None:
             raise ValueError("Cannot specify both rope_scaling and rope_scaling_type. Use rope_scaling_type for advanced options.")
         
-        # Handle backward compatibility
-        if self.rope_scaling is not None:
+        # Handle backward compatibility - only for legacy string format
+        if self.rope_scaling is not None and isinstance(self.rope_scaling, str):
             self.rope_scaling_type = self.rope_scaling
-            self.rope_scaling_factor = 2.0  # Default factor for legacy configs
+            # Only set default if user didn't specify a factor
+            if self.rope_scaling_factor is None:
+                self.rope_scaling_factor = 2.0  # Default factor for legacy configs
         
         # Advanced RoPE validation
         if self.rope_scaling_type == "yarn":

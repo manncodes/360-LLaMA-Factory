@@ -32,8 +32,35 @@ logger = logging.get_logger(__name__)
 
 
 def configure_rope(config: "PretrainedConfig", model_args: "ModelArguments", is_trainable: bool) -> None:
-    # Determine which RoPE scaling to use (new rope_scaling_type or legacy rope_scaling)
-    rope_type = model_args.rope_scaling_type or model_args.rope_scaling
+    # Handle nested rope_scaling configuration
+    if isinstance(model_args.rope_scaling, dict):
+        # Nested format: rope_scaling: {type: yarn, factor: 4.0, alpha: 2.0, ...}
+        nested_config = model_args.rope_scaling
+        rope_type = nested_config.get('type')
+        
+        if rope_type is None:
+            logger.warning_rank0("Nested rope_scaling configuration missing 'type' field.")
+            return
+        
+        logger.info_rank0(f"Using nested RoPE scaling configuration: {nested_config}")
+        
+        # Extract parameters from nested config
+        scaling_factor = nested_config.get('factor')
+        yarn_alpha = nested_config.get('alpha')
+        yarn_beta = nested_config.get('beta') 
+        longrope_short_factor = nested_config.get('short_factor')
+        longrope_long_factor = nested_config.get('long_factor')
+        original_max_position = nested_config.get('original_max_position_embeddings')
+        
+    else:
+        # Flat format: rope_scaling_type + rope_scaling_factor + yarn_alpha, etc.
+        rope_type = model_args.rope_scaling_type or model_args.rope_scaling
+        scaling_factor = model_args.rope_scaling_factor
+        yarn_alpha = model_args.yarn_alpha
+        yarn_beta = model_args.yarn_beta
+        longrope_short_factor = model_args.longrope_short_factor
+        longrope_long_factor = model_args.longrope_long_factor
+        original_max_position = model_args.original_max_position
     
     if rope_type is None:
         return
@@ -56,12 +83,25 @@ def configure_rope(config: "PretrainedConfig", model_args: "ModelArguments", is_
         auto_scaling_factor = 2.0
     
     # Use explicit scaling factor if provided, otherwise use calculated
-    scaling_factor = model_args.rope_scaling_factor or auto_scaling_factor
+    final_scaling_factor = scaling_factor if scaling_factor is not None else auto_scaling_factor
+    
+    # Validate scaling factor
+    if final_scaling_factor <= 0:
+        logger.warning_rank0(f"ROPE scaling factor {final_scaling_factor} is non-positive. This may cause training issues.")
+    elif final_scaling_factor > 100:
+        logger.warning_rank0(f"ROPE scaling factor {final_scaling_factor} is very large. This may cause numerical instability.")
+    
+    # Add validation warning if there's a mismatch  
+    if scaling_factor is not None and abs(final_scaling_factor - scaling_factor) > 0.001:
+        logger.warning_rank0(
+            f"ROPE scaling factor mismatch: requested {scaling_factor}, "
+            f"using {final_scaling_factor}. Check your configuration."
+        )
     
     # Build RoPE configuration based on type
     if rope_type in ["linear", "dynamic"]:
         # Simple RoPE scaling
-        rope_config = {"type": rope_type, "factor": scaling_factor}
+        rope_config = {"type": rope_type, "factor": final_scaling_factor}
         
         if is_trainable and rope_type == "dynamic":
             logger.warning_rank0(
@@ -73,41 +113,47 @@ def configure_rope(config: "PretrainedConfig", model_args: "ModelArguments", is_
         # YaRN RoPE scaling for continual pretraining
         rope_config = {
             "type": "yarn",
-            "factor": scaling_factor,
-            "alpha": model_args.yarn_alpha,
-            "beta": model_args.yarn_beta
+            "factor": final_scaling_factor,
+            "alpha": yarn_alpha,
+            "beta": yarn_beta
         }
         
-        if model_args.original_max_position is not None:
-            rope_config["original_max_position_embeddings"] = model_args.original_max_position
+        if original_max_position is not None:
+            rope_config["original_max_position_embeddings"] = original_max_position
         
-        logger.info_rank0(f"Using YaRN scaling for continual pretraining: alpha={model_args.yarn_alpha}, beta={model_args.yarn_beta}")
+        logger.info_rank0(f"Using YaRN scaling for continual pretraining: alpha={yarn_alpha}, beta={yarn_beta}")
     
     elif rope_type == "longrope":
         # LongRoPE scaling for extreme context extension
         rope_config = {
             "type": "longrope", 
-            "factor": scaling_factor,
-            "short_factor": model_args.longrope_short_factor,
-            "long_factor": model_args.longrope_long_factor
+            "factor": final_scaling_factor,
+            "short_factor": longrope_short_factor,
+            "long_factor": longrope_long_factor
         }
         
-        if model_args.original_max_position is not None:
-            rope_config["original_max_position_embeddings"] = model_args.original_max_position
+        if original_max_position is not None:
+            rope_config["original_max_position_embeddings"] = original_max_position
         
-        logger.info_rank0(f"Using LongRoPE scaling: short_factor={model_args.longrope_short_factor}, long_factor={model_args.longrope_long_factor}")
+        logger.info_rank0(f"Using LongRoPE scaling: short_factor={longrope_short_factor}, long_factor={longrope_long_factor}")
     
     else:
         raise ValueError(f"Unsupported RoPE scaling type: {rope_type}")
     
     # Apply RoPE configuration
     setattr(config, "rope_scaling", rope_config)
-    logger.info_rank0(f"Applied {rope_type} RoPE scaling with factor {scaling_factor}")
+    logger.info_rank0(f"Applied {rope_type} RoPE scaling with factor {final_scaling_factor}")
     
-    # Apply rope_theta if specified
-    if model_args.rope_theta is not None:
+    # Apply rope_theta if specified (check both flat and nested sources)
+    rope_theta = None
+    if isinstance(model_args.rope_scaling, dict):
+        rope_theta = model_args.rope_scaling.get('rope_theta')
+    if rope_theta is None:
+        rope_theta = model_args.rope_theta
+        
+    if rope_theta is not None:
         if hasattr(config, "rope_theta"):
-            setattr(config, "rope_theta", model_args.rope_theta)
-            logger.info_rank0(f"Setting RoPE theta to {model_args.rope_theta}")
+            setattr(config, "rope_theta", rope_theta)
+            logger.info_rank0(f"Setting RoPE theta to {rope_theta}")
         else:
             logger.warning_rank0("Model does not support custom rope_theta parameter")
