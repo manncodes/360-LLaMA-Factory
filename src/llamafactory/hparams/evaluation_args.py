@@ -101,31 +101,10 @@ class EvaluationArguments:
         default=50,
         metadata={"help": "Maximum new tokens for generation in needle haystack"},
     )
-    # RoPE and context length evaluation parameters
-    rope_scaling_type: Optional[str] = field(
-        default=None,
-        metadata={"help": "RoPE scaling type: linear, dynamic, yarn, longrope, llama3"},
-    )
-    rope_scaling_factor: Optional[float] = field(
-        default=None,
-        metadata={"help": "RoPE scaling factor for extending context length"},
-    )
-    yarn_alpha: Optional[float] = field(
-        default=None,
-        metadata={"help": "YARN RoPE alpha parameter"},
-    )
-    yarn_beta: Optional[float] = field(
-        default=None,
-        metadata={"help": "YARN RoPE beta parameter"},
-    )
-    longrope_short_factor: Optional[List[float]] = field(
-        default=None,
-        metadata={"help": "LongRoPE short factor list"},
-    )
-    longrope_long_factor: Optional[List[float]] = field(
-        default=None,
-        metadata={"help": "LongRoPE long factor list"},
-    )
+    # Note: RoPE scaling parameters have been moved to ModelArguments
+    # to avoid conflicts and ensure consistent configuration across all modes.
+    # Use ModelArguments fields: rope_scaling, rope_scaling_type, rope_scaling_factor,
+    # rope_theta, yarn_alpha, yarn_beta, longrope_short_factor, longrope_long_factor
     # LongBench v2 evaluation parameters
     longbench_max_examples: int = field(
         default=0,
